@@ -1,0 +1,156 @@
+fileFormatVersion: 2
+guid: 3ed56124266b4fd4888016b72bcec532
+timeCreated: 1429825266
+licenseType: Store
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: Object001
+    100004: Object002
+    100006: Object003
+    100008: Object004
+    100010: Object005
+    100012: Object006
+    100014: Object007
+    100016: Object008
+    100018: Sun
+    100020: Decoration Cross
+    100022: Decoration Cross Half
+    100024: Decoration Sun
+    100026: Decoration Sun Moon
+    100028: Steel Decoration Big
+    100030: Steel Decoration Small
+    100032: Steel Support
+    100034: Decoration Moon
+    400000: //RootNode
+    400002: Object001
+    400004: Object002
+    400006: Object003
+    400008: Object004
+    400010: Object005
+    400012: Object006
+    400014: Object007
+    400016: Object008
+    400018: Sun
+    400020: Decoration Cross
+    400022: Decoration Cross Half
+    400024: Decoration Sun
+    400026: Decoration Sun Moon
+    400028: Steel Decoration Big
+    400030: Steel Decoration Small
+    400032: Steel Support
+    400034: Decoration Moon
+    2300000: //RootNode
+    2300002: Object001
+    2300004: Object002
+    2300006: Object003
+    2300008: Object004
+    2300010: Object005
+    2300012: Object006
+    2300014: Object007
+    2300016: Object008
+    2300018: Sun
+    2300020: Decoration Cross
+    2300022: Decoration Cross Half
+    2300024: Decoration Sun
+    2300026: Decoration Sun Moon
+    2300028: Steel Decoration Big
+    2300030: Steel Decoration Small
+    2300032: Steel Support
+    2300034: Decoration Moon
+    3300000: //RootNode
+    3300002: Object001
+    3300004: Object002
+    3300006: Object003
+    3300008: Object004
+    3300010: Object005
+    3300012: Object006
+    3300014: Object007
+    3300016: Object008
+    3300018: Sun
+    3300020: Decoration Cross
+    3300022: Decoration Cross Half
+    3300024: Decoration Sun
+    3300026: Decoration Sun Moon
+    3300028: Steel Decoration Big
+    3300030: Steel Decoration Small
+    3300032: Steel Support
+    3300034: Decoration Moon
+    4300000: Cylinder001
+    4300002: Sun
+    4300004: Object001
+    4300006: Object002
+    4300008: Object003
+    4300010: Object004
+    4300012: Object005
+    4300014: Object006
+    4300016: Object007
+    4300018: Object008
+    4300020: Steel Decoration Small
+    4300022: Decoration Sun
+    4300024: Decoration Sun Moon
+    4300026: Decoration Cross
+    4300028: Steel Support
+    4300030: Steel Decoration Big
+    4300032: Decoration Cross Half
+    4300034: Decoration Moon
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
