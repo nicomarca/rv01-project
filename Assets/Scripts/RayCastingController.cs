@@ -4,9 +4,14 @@ using System.Collections;
 
 public class RayCastingController : MonoBehaviour 
 {
+	const float BASEDISTANCE = 1;
 
 	private float distanceToObj;	// Distance entre le personnage et l'objet saisi
 	private Rigidbody attachedObject;	// Objet saisi, null si aucun objet saisi
+	private Vector3 objectSizeInitial;
+	private float distanceInitial;
+	private float newSizeY;
+
 	public const int RAYCASTLENGTH = 100;	// Longueur du rayon issu de la caméra
 	public CursorMode cursorMode = CursorMode.Auto;
 	public Vector2 hotSpot = new Vector2(16, 16);	// Offset du centre du curseur
@@ -44,6 +49,21 @@ public class RayCastingController : MonoBehaviour
 				attachedObject = hitInfo.rigidbody;
 				attachedObject.isKinematic = true;
 				distanceToObj = hitInfo.distance;
+
+				/** On place l'objet dans la main de l'utilisateur **/
+				//Déterminer la taille et la distance
+				objectSizeInitial = attachedObject.GetComponent<Renderer>().bounds.size;
+				float sizeY = objectSizeInitial.y;
+				distanceInitial = hitInfo.distance;
+				//Calculer nouvelle taille
+				newSizeY = BASEDISTANCE/distanceInitial*sizeY;
+				Debug.Log (sizeY);
+				Debug.Log (newSizeY);
+				float ratio = newSizeY / sizeY;
+				//attachedObject.GetComponent<Renderer>().bounds.size.Set(objectSizeInitial.x * ratio, newSizeY, objectSizeInitial.z * ratio);
+				attachedObject.transform.localScale = new Vector3(objectSizeInitial.x * ratio, newSizeY, objectSizeInitial.z * ratio);
+				//Translater
+				attachedObject.MovePosition (ray.origin + (ray.direction * BASEDISTANCE));
 			}
 		} 
 
@@ -63,7 +83,7 @@ public class RayCastingController : MonoBehaviour
 
 		if (Input.GetMouseButton (0) && attachedObject != null) // L'utilisateur continue la saisie d'un objet
 		{
-			attachedObject.MovePosition (ray.origin + (ray.direction * distanceToObj));
+			attachedObject.MovePosition (ray.origin + (ray.direction * BASEDISTANCE));
 			Cursor.SetCursor (cursorDragged, hotSpot, cursorMode);
 
 		} 
