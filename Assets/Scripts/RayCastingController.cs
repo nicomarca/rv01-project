@@ -80,56 +80,61 @@ public class RayCastingController : MonoBehaviour
 			if (hitInfo.Length >= 2) {
 				RaycastHit objectSecondPlane;
 
-				objectFirstPlane =  hitInfo [0];
+				objectFirstPlane = hitInfo [0];
 				objectSecondPlane = hitInfo [1];
-				Debug.Log ("distance actuelle");
-				Debug.Log (hitInfo [0].distance);
-				Debug.Log ("nouvelle distance");
-				Debug.Log (hitInfo [1].distance);
 				Debug.Log ("info premier objet");
-				Debug.Log ( hitInfo [0].transform.name);
-				Debug.Log ( hitInfo [0].transform.position);
+				Debug.Log (hitInfo [0].transform.name);
+				Debug.Log (hitInfo [0].transform.position);
 
 				Debug.Log ("info deuxieme objet");
-				Debug.Log ( hitInfo [1].transform.name);
-				Debug.Log ( hitInfo [1].transform.position);
+				Debug.Log (hitInfo [1].transform.name);
+				Debug.Log (hitInfo [1].transform.position);
 
 
-				distanceToObj = objectSecondPlane.distance;
-				objectSizeInitial = attachedObject.GetComponent<Renderer>().bounds.size;
-				secondObjectSize = objectSecondPlane.transform.GetComponent<Renderer> ().bounds.size;
-				float sizeY = objectSizeInitial.y;
-				distanceInitial = objectFirstPlane.distance;
-				//Calculer nouvelle taille
-				newSizeY = (distanceToObj-secondObjectSize.x)/BASEDISTANCE*sizeY;
-				Debug.Log ("tailleactuelle");
-				Debug.Log (sizeY);
-				Debug.Log ("nouvelle taille");
-				Debug.Log (newSizeY);
-				float ratio = newSizeY / sizeY;
-				//Translater
-				Debug.Log ("ray direction");
-				Debug.Log (ray.direction);
-				Debug.Log ("nouvelle position");
-				Debug.Log (ray.origin + (ray.direction * (distanceToObj-(objectSizeInitial.x * ratio)/2)));
 
-				attachedObject.MovePosition (ray.origin + (ray.direction * (distanceToObj-(objectSizeInitial.x * ratio)/2)));
-				//attachedObject.GetComponent<Renderer>().bounds.size.Set(objectSizeInitial.x * ratio, newSizeY, objectSizeInitial.z * ratio);
-				attachedObject.transform.localScale = new Vector3(objectSizeInitial.x * ratio, newSizeY, objectSizeInitial.z * ratio);
+				if (objectFirstPlane.transform.CompareTag ("draggable") && objectSecondPlane.transform.GetComponent<Renderer> ()) {
+					Debug.Log ("distance actuelle");
+					Debug.Log (hitInfo [0].distance);
+					Debug.Log ("nouvelle distance");
+					Debug.Log (hitInfo [1].distance);
+
+
+
+
+					distanceToObj = objectSecondPlane.distance;
+					objectSizeInitial = hitInfo [0].rigidbody.GetComponent<Renderer> ().bounds.size;
+					secondObjectSize = objectSecondPlane.transform.GetComponent<Renderer> ().bounds.size;
+					float sizeY = objectSizeInitial.y;
+					distanceInitial = objectFirstPlane.distance;
+					//Calculer nouvelle taille
+					newSizeY = (distanceToObj - secondObjectSize.x) / BASEDISTANCE * sizeY;
+					Debug.Log ("tailleactuelle");
+					Debug.Log (sizeY);
+					Debug.Log ("nouvelle taille");
+					Debug.Log (newSizeY);
+					float ratio = newSizeY / sizeY;
+					//Translater
+					Debug.Log ("ray direction");
+					Debug.Log (ray.direction);
+					Debug.Log ("nouvelle position");
+					Debug.Log (ray.origin + (ray.direction * (distanceToObj)));
+
+					hitInfo [0].transform.position = (ray.origin + (ray.direction * (distanceToObj - (objectSizeInitial.z * ratio) / 2)));
+					//attachedObject.GetComponent<Renderer>().bounds.size.Set(objectSizeInitial.x * ratio, newSizeY, objectSizeInitial.z * ratio);
+					attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x * ratio, newSizeY, objectSizeInitial.z * ratio);
 
 			
-			attachedObject.isKinematic = false;
-			attachedObject = null;
-			Debug.Log ("Object detached");
-			if (rayCasted) 
-			{
-				Cursor.SetCursor (cursorDraggable, hotSpot, cursorMode);
-			} else 
-			{
-				Cursor.SetCursor (cursorOff, hotSpot, cursorMode);
+					attachedObject.isKinematic = false;
+					attachedObject = null;
+					Debug.Log ("Object detached");
+					if (rayCasted) {
+						Cursor.SetCursor (cursorDraggable, hotSpot, cursorMode);
+					} else {
+						Cursor.SetCursor (cursorOff, hotSpot, cursorMode);
+					}
+			
+				}
 			}
-			
-		}
 		}
 
 		if ( attachedObject != null) // L'utilisateur continue la saisie d'un objet
