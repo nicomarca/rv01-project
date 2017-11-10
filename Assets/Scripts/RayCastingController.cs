@@ -2,6 +2,7 @@
 using System.Collections;
 
 
+
 public class RayCastingController : MonoBehaviour 
 {
 	const float BASEDISTANCE = 1;
@@ -77,30 +78,36 @@ public class RayCastingController : MonoBehaviour
 		{
 			hitInfo = Physics.RaycastAll (ray, (float)RAYCASTLENGTH);
 			Debug.Log (hitInfo.Length);
+			// trier raycasthit[]
+
+			for (int K = 0; K < hitInfo.Length; K++) {
+				for (int I = hitInfo.Length - 2; I >= 0; I--) {
+					for (int J = 0; J <= I; J++) {
+						if (hitInfo [J + 1].distance < hitInfo [J].distance) {
+							RaycastHit t = hitInfo [J + 1];
+							hitInfo [J + 1] = hitInfo [J];
+							hitInfo [J] = t;
+						}
+					}
+				}
+			}
+
+			for (int i = 0; i < hitInfo.Length; i++) {
+				Debug.Log ("info objet " + (i+1));
+				Debug.Log (hitInfo [i].transform.name);
+				Debug.Log (hitInfo [i].transform.position);
+			}
+
+
+
 			if (hitInfo.Length >= 2) {
 				RaycastHit objectSecondPlane;
 
 				objectFirstPlane = hitInfo [0];
 				objectSecondPlane = hitInfo [1];
-				Debug.Log ("info premier objet");
-				Debug.Log (hitInfo [0].transform.name);
-				Debug.Log (hitInfo [0].transform.position);
-
-				Debug.Log ("info deuxieme objet");
-				Debug.Log (hitInfo [1].transform.name);
-				Debug.Log (hitInfo [1].transform.position);
-
-
-
 				if (objectFirstPlane.transform.CompareTag ("draggable") && objectSecondPlane.transform.GetComponent<Renderer> ()) {
-					Debug.Log ("distance actuelle");
-					Debug.Log (hitInfo [0].distance);
-					Debug.Log ("nouvelle distance");
-					Debug.Log (hitInfo [1].distance);
-
-
-
-
+					Debug.Log ("\n distance actuelle : " + hitInfo [0].distance);
+					Debug.Log ("\n nouvelle distance : " + hitInfo [1].distance);
 					distanceToObj = objectSecondPlane.distance;
 					objectSizeInitial = hitInfo [0].rigidbody.GetComponent<Renderer> ().bounds.size;
 					secondObjectSize = objectSecondPlane.transform.GetComponent<Renderer> ().bounds.size;
@@ -108,17 +115,12 @@ public class RayCastingController : MonoBehaviour
 					distanceInitial = objectFirstPlane.distance;
 					//Calculer nouvelle taille
 					newSizeY = (distanceToObj - secondObjectSize.x) / BASEDISTANCE * sizeY;
-					Debug.Log ("tailleactuelle");
-					Debug.Log (sizeY);
-					Debug.Log ("nouvelle taille");
-					Debug.Log (newSizeY);
+					Debug.Log ("tailleactuelle : " + sizeY);
+					Debug.Log ("nouvelle taille : " + newSizeY);
 					float ratio = newSizeY / sizeY;
 					//Translater
-					Debug.Log ("ray direction");
-					Debug.Log (ray.direction);
-					Debug.Log ("nouvelle position");
-					Debug.Log (ray.origin + (ray.direction * (distanceToObj)));
-
+					Debug.Log ("ray direction : " + ray.direction);
+					Debug.Log ("nouvelle position : " + ray.origin + (ray.direction * (distanceToObj)));
 					hitInfo [0].transform.position = (ray.origin + (ray.direction * (distanceToObj - (objectSizeInitial.z * ratio) / 2)));
 					//attachedObject.GetComponent<Renderer>().bounds.size.Set(objectSizeInitial.x * ratio, newSizeY, objectSizeInitial.z * ratio);
 					attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x * ratio, newSizeY, objectSizeInitial.z * ratio);
