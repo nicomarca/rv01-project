@@ -146,15 +146,15 @@ public class RayCastingController : MonoBehaviour
 					}
 				}
 			}
-
+			/*
 			for (int K = 0; K < hitInfo.Length; K++) {
 				if (hitInfo [K].rigidbody == attachedObject) {
 					for (int L = 0; L < hitInfo.Length - K - 1; L++) {
 						hitInfo [K + L] = hitInfo [K + L + 1];
 					}
-					hitInfo [hitInfo.Length - 1] = null;
+					//hitInfo [hitInfo.Length - 1] = null;
 				}
-			}
+			}*/
 
 
 			if (hitInfo.Length >= 2) {
@@ -191,9 +191,10 @@ public class RayCastingController : MonoBehaviour
 				}
 				else {
 					//Vector3 vect = new Vector3 (0, attachedObject.GetComponent<Rigidbody>().GetComponent<Renderer> ().bounds.size.y/2, 0);
-					//attachedObject.MovePosition (ray.origin + (ray.direction * distanceToObj));
-					//objectSizeInitial = objectFirstPlane.rigidbody.GetComponent<Renderer> ().bounds.size;
-					//attachedObject.transform.position = new Vector3 (attachedObject.transform.position.x, objectSizeInitial.y / 2, attachedObject.transform.position.z);
+					Vector3 newPos = hitInfo[0].point;
+					attachedObject.MovePosition (ray.origin + (ray.direction * distanceToObj));
+					objectSizeInitial = attachedObject.GetComponent<Renderer> ().bounds.size;
+					attachedObject.transform.position = new Vector3 (newPos.x, newPos.y+objectSizeInitial.y/2, newPos.z);
 				}
 			}
 			Cursor.SetCursor (cursorDragged, hotSpot, cursorMode);
