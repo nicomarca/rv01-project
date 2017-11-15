@@ -8,9 +8,11 @@ public class RayCastingController : MonoBehaviour
 	const float BASEDISTANCE = 1;
 
 	private float distanceToObj;	// Distance entre le personnage et l'objet saisi
+	private float oldDistance;
 	private Rigidbody attachedObject;	// Objet saisi, null si aucun objet saisi
 	private Vector3 objectSizeInitial;
 	private Vector3 secondObjectSize;
+	private float ratio;
 
 	private float distanceInitial;
 	private float newSizeY;
@@ -56,6 +58,7 @@ public class RayCastingController : MonoBehaviour
 				attachedObject = objectFirstPlane.rigidbody;
 				attachedObject.isKinematic = true;
 				distanceToObj = objectFirstPlane.distance;
+				oldDistance = distanceToObj;
 				Debug.Log ("Object attached");
 			}
 		} 
@@ -123,7 +126,7 @@ public class RayCastingController : MonoBehaviour
 			
 				}
 			}*/
-
+			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x * ratio, objectSizeInitial.y * ratio, objectSizeInitial.z * ratio);
 			attachedObject.isKinematic = false;
 			attachedObject = null;
 			Debug.Log ("Object detached");
@@ -166,28 +169,33 @@ public class RayCastingController : MonoBehaviour
 					Debug.Log ("\n nouvelle distance : " + objectSecondPlane.distance);
 
 					distanceToObj = objectFirstPlane.distance;
-					objectSizeInitial = objectFirstPlane.rigidbody.GetComponent<Renderer> ().bounds.size;
+					objectSizeInitial = attachedObject.GetComponent<Renderer> ().bounds.size;
 
 					//secondObjectSize = objectSecondPlane.transform.GetComponent<Renderer> ().bounds.size;
 					float sizeY = objectSizeInitial.y;
 					float distanceToSecondPlane = objectSecondPlane.distance;
 
 					//Calculer nouvelle taille
-					//newSizeY = (distanceToObj - distanceToSecondPlane) / distanceToObj * sizeY;
-					newSizeY = sizeY*(distanceToSecondPlane/distanceToObj);
+					float GroundDistanceFirstPlane = Vector3.Distance(this.gameObject.transform.position,attachedObject.position);
+					float GroundDistanceSecondPlane = Vector3.Distance(this.gameObject.transform.position,objectSecondPlane.point);
+
+					//newSizeY = (distanceToSecondPlane - distanceToObj) / distanceToSecondPlane * sizeY;
+					newSizeY = sizeY*(GroundDistanceSecondPlane/GroundDistanceFirstPlane);
+					oldDistance = distanceToObj;
 					Debug.Log ("tailleactuelle : " + sizeY);
 					Debug.Log ("nouvelle taille : " + newSizeY);
-					float ratio = newSizeY / sizeY;
+					ratio = newSizeY / sizeY;
 
 					//Translater
-					Debug.Log ("ray direction : " + ray.direction);
-					Debug.Log ("nouvelle position : " + ray.origin + (ray.direction * (distanceToObj)));
+					Vector3 vect = new Vector3 (0, newSizeY/2, 0);
 
-					Vector3 vect = new Vector3 (0, sizeY/2, 0);
-					Debug.LogError (ray.origin + (ray.direction * distanceToSecondPlane) + vect);
 					//attachedObject.MovePosition (ray.origin + (ray.direction * distanceToSecondPlane) + vect);
 					attachedObject.transform.position = ray.origin + (ray.direction * distanceToSecondPlane) + vect;
-					//attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x * ratio, newSizeY, objectSizeInitial.z * ratio);
+					Debug.LogError (newSizeY);
+					attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x * ratio, objectSizeInitial.y * ratio, objectSizeInitial.z * ratio);
+
+					Debug.Log ("ray direction : " + ray.direction);
+					Debug.Log ("nouvelle position : " + attachedObject.position);
 				}
 				else {
 					//Vector3 vect = new Vector3 (0, attachedObject.GetComponent<Rigidbody>().GetComponent<Renderer> ().bounds.size.y/2, 0);
