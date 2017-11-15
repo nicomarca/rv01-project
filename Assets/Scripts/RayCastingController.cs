@@ -147,6 +147,16 @@ public class RayCastingController : MonoBehaviour
 				}
 			}
 
+			for (int K = 0; K < hitInfo.Length; K++) {
+				if (hitInfo [K].rigidbody == attachedObject) {
+					for (int L = 0; L < hitInfo.Length - K - 1; L++) {
+						hitInfo [K + L] = hitInfo [K + L + 1];
+					}
+					hitInfo [hitInfo.Length - 1] = null;
+				}
+			}
+
+
 			if (hitInfo.Length >= 2) {
 				RaycastHit objectSecondPlane;
 				objectFirstPlane = hitInfo [0]; //normalement == attachedObject
@@ -173,14 +183,17 @@ public class RayCastingController : MonoBehaviour
 					Debug.Log ("ray direction : " + ray.direction);
 					Debug.Log ("nouvelle position : " + ray.origin + (ray.direction * (distanceToObj)));
 
-					attachedObject.MovePosition (ray.origin + (ray.direction * (distanceToObj - (objectSizeInitial.z * ratio) / 2)));
-					attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x * ratio, newSizeY, objectSizeInitial.z * ratio);
-
-					//On actualise la distance
-					distanceToObj = objectFirstPlane.distance;
+					Vector3 vect = new Vector3 (0, sizeY/2, 0);
+					Debug.LogError (ray.origin + (ray.direction * distanceToSecondPlane) + vect);
+					//attachedObject.MovePosition (ray.origin + (ray.direction * distanceToSecondPlane) + vect);
+					attachedObject.transform.position = ray.origin + (ray.direction * distanceToSecondPlane) + vect;
+					//attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x * ratio, newSizeY, objectSizeInitial.z * ratio);
 				}
 				else {
-					attachedObject.MovePosition (ray.origin + (ray.direction * distanceToObj));
+					//Vector3 vect = new Vector3 (0, attachedObject.GetComponent<Rigidbody>().GetComponent<Renderer> ().bounds.size.y/2, 0);
+					//attachedObject.MovePosition (ray.origin + (ray.direction * distanceToObj));
+					//objectSizeInitial = objectFirstPlane.rigidbody.GetComponent<Renderer> ().bounds.size;
+					//attachedObject.transform.position = new Vector3 (attachedObject.transform.position.x, objectSizeInitial.y / 2, attachedObject.transform.position.z);
 				}
 			}
 			Cursor.SetCursor (cursorDragged, hotSpot, cursorMode);
