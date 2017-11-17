@@ -58,7 +58,6 @@ public class RayCastingController : MonoBehaviour
 				attachedObject = objectFirstPlane.rigidbody;
 				attachedObject.isKinematic = true;
 				distanceToObj = objectFirstPlane.distance;
-				oldDistance = distanceToObj;
 				Debug.Log ("Object attached");
 			}
 		} 
@@ -66,66 +65,8 @@ public class RayCastingController : MonoBehaviour
 		/*** L'UTILISATEUR RECLIQUE (LACHE L'OBJET) ***/
 		else if (Input.GetMouseButtonDown (0) && attachedObject != null)
 		{
-			/*hitInfo = Physics.RaycastAll (ray, (float)RAYCASTLENGTH);
-			Debug.Log (hitInfo.Length);
-			// trier raycasthit[]
-			for (int K = 0; K < hitInfo.Length; K++) {
-				for (int I = hitInfo.Length - 2; I >= 0; I--) {
-					for (int J = 0; J <= I; J++) {
-						if (hitInfo [J + 1].distance < hitInfo [J].distance) {
-							RaycastHit t = hitInfo [J + 1];
-							hitInfo [J + 1] = hitInfo [J];
-							hitInfo [J] = t;
-						}
-					}
-				}
-			}
-
-			for (int i = 0; i < hitInfo.Length; i++) {
-				Debug.Log ("info objet " + (i+1));
-				Debug.Log (hitInfo [i].transform.name);
-				Debug.Log (hitInfo [i].transform.position);
-			}
-
-
-
-			if (hitInfo.Length >= 2) {
-				RaycastHit objectSecondPlane;
-
-				objectFirstPlane = hitInfo [0];
-				objectSecondPlane = hitInfo [1];
-				if (objectFirstPlane.transform.CompareTag ("draggable") && objectSecondPlane.transform.GetComponent<Renderer> ()) {
-					Debug.Log ("\n distance actuelle : " + hitInfo [0].distance);
-					Debug.Log ("\n nouvelle distance : " + hitInfo [1].distance);
-					distanceToObj = objectSecondPlane.distance;
-					objectSizeInitial = hitInfo [0].rigidbody.GetComponent<Renderer> ().bounds.size;
-					secondObjectSize = objectSecondPlane.transform.GetComponent<Renderer> ().bounds.size;
-					float sizeY = objectSizeInitial.y;
-					distanceInitial = objectFirstPlane.distance;
-					//Calculer nouvelle taille
-					newSizeY = (distanceToObj - secondObjectSize.x) / BASEDISTANCE * sizeY;
-					Debug.Log ("tailleactuelle : " + sizeY);
-					Debug.Log ("nouvelle taille : " + newSizeY);
-					float ratio = newSizeY / sizeY;
-					//Translater
-					Debug.Log ("ray direction : " + ray.direction);
-					Debug.Log ("nouvelle position : " + ray.origin + (ray.direction * (distanceToObj)));
-					hitInfo [0].transform.position = (ray.origin + (ray.direction * (distanceToObj - (objectSizeInitial.z * ratio) / 2)));
-					//attachedObject.GetComponent<Renderer>().bounds.size.Set(objectSizeInitial.x * ratio, newSizeY, objectSizeInitial.z * ratio);
-					attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x * ratio, newSizeY, objectSizeInitial.z * ratio);
-
-			
-					attachedObject.isKinematic = false;
-					attachedObject = null;
-					Debug.Log ("Object detached");
-					if (rayCasted) {
-						Cursor.SetCursor (cursorDraggable, hotSpot, cursorMode);
-					} else {
-						Cursor.SetCursor (cursorOff, hotSpot, cursorMode);
-					}
-			
-				}
-			}*/
+			Vector3 vect = new Vector3 (0, newSizeY / 4, 0);
+			attachedObject.transform.position += vect;
 			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x * ratio, objectSizeInitial.y * ratio, objectSizeInitial.z * ratio);
 			attachedObject.isKinematic = false;
 			attachedObject = null;
@@ -137,7 +78,6 @@ public class RayCastingController : MonoBehaviour
 		{
 			hitInfo = Physics.RaycastAll (ray, (float)RAYCASTLENGTH);
 			if (hitInfo.Length > 0) {
-				//Debug.Log (hitInfo.Length);
 				// trier raycasthit[]
 				for (int K = 0; K < hitInfo.Length; K++) {
 					for (int I = hitInfo.Length - 2; I >= 0; I--) {
@@ -150,18 +90,9 @@ public class RayCastingController : MonoBehaviour
 						}
 					}
 				}
-				/*
-			for (int K = 0; K < hitInfo.Length; K++) {
-				if (hitInfo [K].rigidbody == attachedObject) {
-					for (int L = 0; L < hitInfo.Length - K - 1; L++) {
-						hitInfo [K + L] = hitInfo [K + L + 1];
-					}
-					//hitInfo [hitInfo.Length - 1] = null;
-				}
-			}*/
 
 				objectFirstPlane = hitInfo [0]; //normalement == attachedObject
-				objectSizeInitial = attachedObject.GetComponent<Renderer> ().bounds.size;
+				objectSizeInitial = attachedObject.transform.lossyScale;
 
 				if (hitInfo.Length >= 2) {
 					RaycastHit objectSecondPlane;
@@ -176,25 +107,26 @@ public class RayCastingController : MonoBehaviour
 						float distanceToSecondPlane = objectSecondPlane.distance;
 
 						//Calculer nouvelle taille
-						float GroundDistanceFirstPlane = Vector3.Distance (this.gameObject.transform.position, attachedObject.position);
+						Vector3 attachedObjectGroundPosition = attachedObject.position;
+						attachedObjectGroundPosition.y = this.gameObject.transform.position.y;
+						float GroundDistanceFirstPlane = Vector3.Distance (this.gameObject.transform.position, attachedObjectGroundPosition);
 						float GroundDistanceSecondPlane = Vector3.Distance (this.gameObject.transform.position, objectSecondPlane.point);
-						if (GroundDistanceFirstPlane / GroundDistanceSecondPlane > 0.90 && GroundDistanceFirstPlane / GroundDistanceSecondPlane < 1.10) {
-							GroundDistanceFirstPlane = GroundDistanceSecondPlane;
-						}
-
-						//newSizeY = (distanceToSecondPlane - distanceToObj) / distanceToSecondPlane * sizeY;
+			
 						newSizeY = sizeY * (GroundDistanceSecondPlane / GroundDistanceFirstPlane);
 
 						Debug.Log ("tailleactuelle : " + sizeY);
 						Debug.Log ("nouvelle taille : " + newSizeY);
 						ratio = newSizeY / sizeY;
+						/*if (ratio > 0.95 && ratio < 1.05) {
+							newSizeY = sizeY;
+							ratio = 1;
+						}*/
 
 						//Translater
 						Vector3 vect = new Vector3 (0, newSizeY / 2, 0);
 
 						//attachedObject.MovePosition (ray.origin + (ray.direction * distanceToSecondPlane) + vect);
-						attachedObject.transform.position = ray.origin + (ray.direction * distanceToSecondPlane) + vect;
-						Debug.Log (newSizeY);
+						attachedObject.transform.position = objectSecondPlane.point + vect;
 						attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x * ratio, objectSizeInitial.y * ratio, objectSizeInitial.z * ratio);
 
 						Debug.Log ("ray direction : " + ray.direction);
@@ -216,13 +148,14 @@ public class RayCastingController : MonoBehaviour
 							float distanceToFirstPlane = objectFirstPlane.distance;
 
 							//Calculer nouvelle taille
-
-							float GroundDistanceFirstPlane = Vector3.Distance (this.gameObject.transform.position, attachedObject.position);
+							Vector3 attachedObjectGroundPosition = attachedObject.position;
+							attachedObjectGroundPosition.y = this.gameObject.transform.position.y;
+							float GroundDistanceFirstPlane = Vector3.Distance (this.gameObject.transform.position, attachedObjectGroundPosition);
 							float GroundDistanceSecondPlane = Vector3.Distance (this.gameObject.transform.position, objectFirstPlane.point);
 
-							if (GroundDistanceFirstPlane / GroundDistanceSecondPlane > 0.90 && GroundDistanceFirstPlane / GroundDistanceSecondPlane < 1.10) {
+							/*if (GroundDistanceFirstPlane / GroundDistanceSecondPlane > 0.90 && GroundDistanceFirstPlane / GroundDistanceSecondPlane < 1.10) {
 								GroundDistanceFirstPlane = GroundDistanceSecondPlane;
-							}
+							}*/
 
 							//newSizeY = (distanceToSecondPlane - distanceToObj) / distanceToSecondPlane * sizeY;
 							newSizeY = sizeY * (GroundDistanceSecondPlane / GroundDistanceFirstPlane);
@@ -231,12 +164,16 @@ public class RayCastingController : MonoBehaviour
 							Debug.Log ("nouvelle taille : " + newSizeY);
 							ratio = newSizeY / sizeY;
 
+							if (ratio > 0.95 && ratio < 1.05) {
+								newSizeY = sizeY;
+								ratio = 1;
+							}
+
 							//Translater
 							Vector3 vect = new Vector3 (0, newSizeY / 2, 0);
 
 							//attachedObject.MovePosition (ray.origin + (ray.direction * distanceToSecondPlane) + vect);
-							attachedObject.transform.position = ray.origin + (ray.direction * distanceToFirstPlane) + vect;
-							Debug.Log (newSizeY);
+							attachedObject.transform.position = objectSecondPlane.point + vect;
 							attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x * ratio, objectSizeInitial.y * ratio, objectSizeInitial.z * ratio);
 
 							Debug.Log ("ray direction : " + ray.direction);
