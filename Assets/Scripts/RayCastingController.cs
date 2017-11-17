@@ -111,8 +111,9 @@ public class RayCastingController : MonoBehaviour
 						attachedObjectGroundPosition.y = this.gameObject.transform.position.y;
 						float GroundDistanceFirstPlane = Vector3.Distance (this.gameObject.transform.position, attachedObjectGroundPosition);
 						float GroundDistanceSecondPlane = Vector3.Distance (this.gameObject.transform.position, objectSecondPlane.point);
-			
+
 						newSizeY = sizeY * (GroundDistanceSecondPlane / GroundDistanceFirstPlane);
+						Debug.LogError (GroundDistanceSecondPlane + "et" +GroundDistanceFirstPlane);
 
 						Debug.Log ("tailleactuelle : " + sizeY);
 						Debug.Log ("nouvelle taille : " + newSizeY);
@@ -138,11 +139,7 @@ public class RayCastingController : MonoBehaviour
 						if (objectFirstPlane.transform.name == "Terrain") {
 							distanceToObj = objectFirstPlane.distance;
 							objectSizeInitial = attachedObject.GetComponent<Renderer> ().bounds.size;
-							/*
-						attachedObject.MovePosition (ray.origin + (ray.direction * distanceToObj));
-						objectSizeInitial = attachedObject.GetComponent<Renderer> ().bounds.size;
-						attachedObject.transform.position = new Vector3 (newPos.x, newPos.y + objectSizeInitial.y / 2, newPos.z);
-						*/
+
 							//secondObjectSize = objectSecondPlane.transform.GetComponent<Renderer> ().bounds.size;
 							float sizeY = objectSizeInitial.y;
 							float distanceToFirstPlane = objectFirstPlane.distance;
