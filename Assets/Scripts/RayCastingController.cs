@@ -96,9 +96,6 @@ public class RayCastingController : MonoBehaviour
 					RaycastHit objectSecondPlane;
 					objectSecondPlane = hitInfo [1];
 					if (objectSecondPlane.transform.name == "Terrain") {
-						Debug.Log ("\n distance actuelle : " + objectFirstPlane.distance);
-						Debug.Log ("\n nouvelle distance : " + objectSecondPlane.distance);
-
 
 						//secondObjectSize = objectSecondPlane.transform.GetComponent<Renderer> ().bounds.size;
 						float sizeY = objectSizeInitial.y;
@@ -106,30 +103,22 @@ public class RayCastingController : MonoBehaviour
 
 						//Calculer nouvelle taille
 						Vector3 attachedObjectGroundPosition = attachedObject.position;
-						attachedObjectGroundPosition.y = wand.transform.position.y;
-						float GroundDistanceFirstPlane = Vector3.Distance (wand.transform.position, attachedObjectGroundPosition);
-						float GroundDistanceSecondPlane = Vector3.Distance (wand.transform.position, objectSecondPlane.point);
+						attachedObjectGroundPosition.y = 0;
+						float GroundDistanceFirstPlane = Vector3.Distance (wand.transform.position - new Vector3(0,wand.transform.position.y,0), attachedObjectGroundPosition);
+						float GroundDistanceSecondPlane = Vector3.Distance (wand.transform.position - new Vector3(0,wand.transform.position.y,0), objectSecondPlane.point);
 
 						newSizeY = sizeY * (GroundDistanceSecondPlane / GroundDistanceFirstPlane);
-						//Debug.LogError (GroundDistanceSecondPlane + "et" +GroundDistanceFirstPlane);
+						Debug.LogError (attachedObject.transform.lossyScale);
 
-						Debug.Log ("tailleactuelle : " + sizeY);
-						Debug.Log ("nouvelle taille : " + newSizeY);
 						ratio = newSizeY / sizeY;
-						if (ratio > 0.95 && ratio < 1.05) {
+						/*if (ratio > 0.95 && ratio < 1.05) {
 							newSizeY = sizeY;
 							ratio = 1;
-						}
+						}*/
 
 						//Translater
-						Vector3 vect = new Vector3 (0, newSizeY / 2, 0);
-
-						//attachedObject.MovePosition (ray.origin + (ray.direction * distanceToSecondPlane) + vect);
-						attachedObject.transform.position = objectSecondPlane.point + vect;
+						attachedObject.transform.position = objectSecondPlane.point + new Vector3(0, newSizeY/2, 0);;
 						attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x * ratio, objectSizeInitial.y * ratio, objectSizeInitial.z * ratio);
-
-						Debug.Log ("ray direction : " + ray.direction);
-						Debug.Log ("nouvelle position : " + attachedObject.position);
 					} else {
 					
 						//Vector3 vect = new Vector3 (0, attachedObject.GetComponent<Rigidbody>().GetComponent<Renderer> ().bounds.size.y/2, 0);
@@ -144,9 +133,9 @@ public class RayCastingController : MonoBehaviour
 
 							//Calculer nouvelle taille
 							Vector3 attachedObjectGroundPosition = attachedObject.position;
-							attachedObjectGroundPosition.y = wand.transform.position.y;
-							float GroundDistanceFirstPlane = Vector3.Distance (wand.transform.position, attachedObjectGroundPosition);
-							float GroundDistanceSecondPlane = Vector3.Distance (wand.transform.position, objectFirstPlane.point);
+							attachedObjectGroundPosition.y = 0;
+							float GroundDistanceFirstPlane = Vector3.Distance (wand.transform.position - new Vector3(0,wand.transform.position.y,0), attachedObjectGroundPosition);
+							float GroundDistanceSecondPlane = Vector3.Distance (wand.transform.position - new Vector3(0,wand.transform.position.y,0), objectFirstPlane.point);
 
 							/*if (GroundDistanceFirstPlane / GroundDistanceSecondPlane > 0.90 && GroundDistanceFirstPlane / GroundDistanceSecondPlane < 1.10) {
 								GroundDistanceFirstPlane = GroundDistanceSecondPlane;
@@ -155,20 +144,18 @@ public class RayCastingController : MonoBehaviour
 							//newSizeY = (distanceToSecondPlane - distanceToObj) / distanceToSecondPlane * sizeY;
 							newSizeY = sizeY * (GroundDistanceSecondPlane / GroundDistanceFirstPlane);
 
-							Debug.Log ("tailleactuelle : " + sizeY);
-							Debug.Log ("nouvelle taille : " + newSizeY);
 							ratio = newSizeY / sizeY;
 
-							if (ratio > 0.95 && ratio < 1.05) {
+							/*if (ratio > 0.95 && ratio < 1.05) {
 								newSizeY = sizeY;
 								ratio = 1;
-							}
+							}*/
 
 							//Translater
 							Vector3 vect = new Vector3 (0, newSizeY / 2, 0);
 
 							//attachedObject.MovePosition (ray.origin + (ray.direction * distanceToSecondPlane) + vect);
-							attachedObject.transform.position = objectSecondPlane.point + vect;
+							attachedObject.transform.position = objectFirstPlane.point + vect;
 							attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x * ratio, objectSizeInitial.y * ratio, objectSizeInitial.z * ratio);
 
 							Debug.Log ("ray direction : " + ray.direction);
