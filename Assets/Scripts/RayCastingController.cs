@@ -114,7 +114,7 @@ public class RayCastingController : MonoBehaviour
 						float GroundDistanceSecondPlane = Vector3.Distance (this.gameObject.transform.position, objectSecondPlane.point);
 
 						newSizeY = sizeY * (GroundDistanceSecondPlane / GroundDistanceFirstPlane);
-						Debug.LogError (GroundDistanceSecondPlane + "et" +GroundDistanceFirstPlane);
+						Debug.Log (GroundDistanceSecondPlane + "et" +GroundDistanceFirstPlane);
 
 						Debug.Log ("tailleactuelle : " + sizeY);
 						Debug.Log ("nouvelle taille : " + newSizeY);
