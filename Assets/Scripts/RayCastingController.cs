@@ -39,10 +39,6 @@ public class RayCastingController : MonoBehaviour
 			rayCasted = firstHit.transform.CompareTag ("draggable");
 		}
 
-		if (Input.GetButtonDown("Grab")){
-			Debug.LogError ("OK");
-		}
-
 		/**** L'UTILISATEUR CLIQUE ***/
 		if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject == null)
 		{
@@ -118,12 +114,19 @@ public class RayCastingController : MonoBehaviour
 	{
 		// Calculate new size
 		Vector3 attachedObjectGroundPosition = attachedObject.position;
-		attachedObjectGroundPosition.y = 0;
-		float GroundDistanceFirstPlane = Vector3.Distance (wand.transform.position - new Vector3(0, wand.transform.position.y, 0), attachedObjectGroundPosition);
-		float GroundDistanceSecondPlane = Vector3.Distance (wand.transform.position - new Vector3(0, wand.transform.position.y, 0), referenceObject.point);
+		attachedObjectGroundPosition.y = referenceObject.point.y;
+		float GroundDistanceFirstPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), attachedObjectGroundPosition);
+		float GroundDistanceSecondPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), referenceObject.point);
 
 		newSizeY = sizeY * (GroundDistanceSecondPlane / GroundDistanceFirstPlane);
 		ratio = newSizeY / sizeY;
+
+		//DEBUG
+		Debug.Log("GroundDistanceFirstPlane : " + GroundDistanceFirstPlane);
+		Debug.Log("GroundDistanceSecondPlane : " + GroundDistanceSecondPlane);
+		Debug.Log ("newSizeY : " + newSizeY + " ; sizeY : " + sizeY);
+		Debug.Log ("ratio : " + ratio);
+
 
 		// Translater
 		Vector3 verticalReplacement = new Vector3 (0, newSizeY / 2, 0);
