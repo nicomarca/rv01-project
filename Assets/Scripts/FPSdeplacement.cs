@@ -13,34 +13,17 @@ public class FPSdeplacement : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		vr = false;
+		vr = true;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
 		if (vr) {
-			if(Input.GetKey("s"))
-			{
-				this.transform.Translate(Vector3.back * tSpeed);
-			}
-			if(Input.GetKey("q"))
-			{
-				this.transform.Translate(Vector3.left * tSpeed);
-			}
-			if(Input.GetKey("d"))
-			{
-				this.transform.Translate(Vector3.right * tSpeed);
-			}
-
-			if (Input.GetKey("left")) {
-				transform.Rotate(Vector3.up, -rSpeed);
-			}
-			if (Input.GetKey("right")) {
-				transform.Rotate(Vector3.up, rSpeed);
-
-			}
-
+			float mouvmentHorizontal = Input.GetAxis ("Horizontal");
+			float mouvmentVertical = Input.GetAxis ("Vertical");
+			Vector3 mouvment = new Vector3 (mouvmentHorizontal, 0, mouvmentVertical);
+			this.transform.Translate(Camera.main.transform.rotation * mouvment * tSpeed);
 		} else {
 			if(Input.GetKey("z"))
 			{

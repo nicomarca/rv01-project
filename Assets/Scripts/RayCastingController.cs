@@ -39,9 +39,14 @@ public class RayCastingController : MonoBehaviour
 			rayCasted = firstHit.transform.CompareTag ("draggable");
 		}
 
+		if (Input.GetButtonDown("Grab")){
+			Debug.LogError ("OK");
+		}
+
 		/**** L'UTILISATEUR CLIQUE ***/
-		if (Input.GetMouseButtonDown (0) && attachedObject == null)
+		if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject == null)
 		{
+
 			if (rayCasted) 
 			{
 				objectFirstPlane = firstHit;
@@ -52,7 +57,7 @@ public class RayCastingController : MonoBehaviour
 			}
 		}
 		/*** L'UTILISATEUR RECLIQUE (LACHE L'OBJET) ***/
-		else if (Input.GetMouseButtonDown (0) && attachedObject != null)
+		else if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject != null)
 		{
 			Vector3 vect = new Vector3 (0, newSizeY / 4, 0);
 			attachedObject.transform.position += vect;
