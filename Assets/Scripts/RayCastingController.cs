@@ -3,26 +3,19 @@ using System.Collections;
 using UnityEngine.VR;
 
 
-
 public class RayCastingController : MonoBehaviour 
 {
-	const float BASEDISTANCE = 1;
+	private const int RAYCASTLENGTH = 200;		// Length of the ray
 
-	private float distanceToObj;	// Distance entre le personnage et l'objet saisi
-	private float oldDistance;
-	private float ratio;
-	private float distanceInitial;
-	private float newSizeY;
+	private float distanceToObj;				// Distance entre le personnage et l'objet saisi
+	private float ratio;						// Ratio between the distances
+	private float newSizeY;						// New vertical size of the moved object
+	private Rigidbody attachedObject;			// Objet saisi, null si aucun objet saisi
+	private Vector3 objectSizeInitial;  		// Initial size of the object
 
-	private Rigidbody attachedObject;	// Objet saisi, null si aucun objet saisi
-	private Vector3 objectSizeInitial;
-	private Vector3 secondObjectSize;
-
-	public const int RAYCASTLENGTH = 100;	// Longueur du rayon issu de la caméra
-	public Material lazerOff, lazerOK, lazerOn;
-
-	public GameObject lazer;
-	public GameObject wand;
+	public Material lazerOff, lazerOK, lazerOn; // Lazer colors
+	public GameObject lazer;					// Lazer of the wand 
+	public GameObject wand;						// wand in the right hand of the user
 
 	void Start () 
 	{
@@ -57,8 +50,7 @@ public class RayCastingController : MonoBehaviour
 				distanceToObj = objectFirstPlane.distance;
 				// Debug.Log ("Object attached");
 			}
-		} 
-
+		}
 		/*** L'UTILISATEUR RECLIQUE (LACHE L'OBJET) ***/
 		else if (Input.GetMouseButtonDown (0) && attachedObject != null)
 		{
@@ -67,7 +59,6 @@ public class RayCastingController : MonoBehaviour
 			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 			attachedObject.isKinematic = false;
 			attachedObject = null;
-			// Debug.Log ("Object detached");
 		}
 
 		/*** L'UTILISATEUR A L'OBJET DANS LA MAIN ***/
@@ -93,7 +84,6 @@ public class RayCastingController : MonoBehaviour
 					}
 					else
 					{
-						Vector3 newPos = objectFirstPlane.point;
 						if (objectFirstPlane.transform.name == "Terrain")
 						{
 							objectSizeInitial = attachedObject.GetComponent<Renderer> ().bounds.size;
