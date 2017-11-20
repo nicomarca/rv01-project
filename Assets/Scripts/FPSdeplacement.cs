@@ -9,11 +9,10 @@ public class FPSdeplacement : MonoBehaviour {
 	public float tSpeed = 0.15f;
 	public float rSpeed = 8f;
 
-	private bool vr;
+	private bool vr = false;
 
 	// Use this for initialization
 	void Start () {
-		vr = true;
 	}
 	
 	// Update is called once per frame
