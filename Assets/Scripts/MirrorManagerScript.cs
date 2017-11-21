@@ -31,7 +31,7 @@ public class MirrorManagerScript : MonoBehaviour {
 		distanceToPlayer = Vector3.Distance (gameObject.transform.parent.position  - new Vector3(0, gameObject.transform.parent.position.y, 0) , playerSkin.transform.position - new Vector3(0, playerSkin.transform.position.y, 0));
 
 		Debug.Log (distanceToObj);
-		Debug.Log (distanceToPlayer);
+		Debug.Log ("Distance to Player " + distanceToPlayer);
 
 
 		
