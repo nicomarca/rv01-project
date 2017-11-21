@@ -17,14 +17,25 @@ public class RayCastingController : MonoBehaviour {
 	public GameObject 	lazer;						// Lazer of the wand 
 	public GameObject	wand;						// wand in the right hand of the user
 
+	public GameObject	player;						// player
+	private Vector3		oldPlayerPos;				// player position before update
+
 	void Start () {
 		distanceToObj = -1;
 		attachedObjectCollision = null;
 		lazer.GetComponent<Renderer> ().material = lazerOff;
+		oldPlayerPos = player.transform.position;
 	}
 
 
 	void Update () {
+
+		// Si l'utilisateur bouge, on bouge l'attached object (si il existe) avec lui
+		// on actualise pas sa taille (car la taille apparente ne change pas)
+		if (playerMoving ()) {
+			return;
+		}
+			
 		RaycastHit[] hitInfo;
 		RaycastHit firstHit;
 		RaycastHit objectFirstPlane;
@@ -66,7 +77,9 @@ public class RayCastingController : MonoBehaviour {
 
 		/*** L'UTILISATEUR A L'OBJET DANS LA MAIN ***/
 		if (attachedObject != null) {
+
 			hitInfo = Physics.RaycastAll (ray, (float)RAYCASTLENGTH);
+
 			if (hitInfo.Length > 0) {
 				hitInfo = orderHitInfo (hitInfo); // order hitInfo by distance
 
@@ -100,6 +113,7 @@ public class RayCastingController : MonoBehaviour {
 				else if (hitInfo [0].transform.name == attachedObject.name) {
 					Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, attachedObject.transform.position);
 					attachedObject.transform.position = newPos;
+					//setAttachedObjectOrientation ();
 				}
 
 				lazer.GetComponent<Renderer> ().material = lazerOn;
@@ -109,6 +123,7 @@ public class RayCastingController : MonoBehaviour {
 			else {
 				Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, attachedObject.transform.position);
 				attachedObject.transform.position = newPos;
+
 			}
 		} 
 		/*** L'UTILISATEUR BOUGE LA SOURIS SANS CLIQUER ***/
@@ -136,11 +151,11 @@ public class RayCastingController : MonoBehaviour {
 		ratio = newSizeY / sizeY;
 
 		//DEBUG (uncomment what you need)
-		//Debug.Log("attachedObjectGroundPosition.y : " + attachedObjectGroundPosition.y);
+		//Debug.Log("attachedObjectGroundPosition.y : " + attachedObjectGroundPositi   on.y);
 		//Debug.Log("GroundDistanceFirstPlane : " + GroundDistanceFirstPlane);
 		//Debug.Log("GroundDistanceSecondPlane : " + GroundDistanceSecondPlane);
 		//Debug.Log ("newSizeY : " + newSizeY + " ; sizeY : " + sizeY);
-		//Debug.Log ("ratio : " + ratio);
+		//Debug.Log ("ratio : " + ratio); 
 
 
 		// Translate
@@ -149,12 +164,11 @@ public class RayCastingController : MonoBehaviour {
 		attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 		//attachedObject.GetComponent<BoxCollider>().size = attachedObject.GetComponent<BoxCollider>().size * ratio;
 
+
 		// Rotation
-		Vector3 rotationVector = attachedObject.transform.rotation.eulerAngles;
-		rotationVector.y = 0;
-		rotationVector.y = wand.transform.rotation.eulerAngles.y;
-		rotationVector.y = 0;
-		attachedObject.transform.rotation = Quaternion.Euler (rotationVector);
+		/*Vector3 rotationVector = attachedObject.transform.rotation.eulerAngles; 
+		rotationVector.y = wand.transform.rotation.eulerAngles.y; 
+		attachedObject.transform.rotation = Quaternion.Euler (rotationVector);*/
 	}
 
 	// If referenced object is an other object
@@ -162,14 +176,14 @@ public class RayCastingController : MonoBehaviour {
 		attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, referecendPoint, 100.0f);
 	}
 
-	/*
+
 	private void setAttachedObjectOrientation() {
 		Vector3 rotationVector = attachedObject.transform.rotation.eulerAngles;
 		rotationVector.y = wand.transform.rotation.eulerAngles.y;
 		Quaternion quaternionArrival = Quaternion.Euler (rotationVector);
 		attachedObject.transform.rotation = Quaternion.Slerp (attachedObject.transform.rotation, quaternionArrival, 0.1f);
 	}
-	*/
+
 
 	// Order hitInfo by distance
 	private RaycastHit[] orderHitInfo(RaycastHit[] hitInfo) {
@@ -195,6 +209,18 @@ public class RayCastingController : MonoBehaviour {
 			}
 		}
 		return closestPoint;
+	}
+
+	private bool playerMoving(){
+		if (player.transform.position == oldPlayerPos) {
+			return false;
+		} else {
+			if (attachedObject != null) {
+				attachedObject.transform.position += player.transform.position - oldPlayerPos;
+			}
+			oldPlayerPos = player.transform.position;
+			return true;
+		}
 	}
 
 	public void setAttachedObjectCollision(Collision collision) {
