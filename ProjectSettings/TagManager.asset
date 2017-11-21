@@ -6,7 +6,7 @@ TagManager:
   tags:
   - draggable
   - undraggable
-  - terrain
+  - Terrain
   layers:
   - Default
   - TransparentFX

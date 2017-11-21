@@ -39,8 +39,11 @@ public class RayCastingController : MonoBehaviour {
 		}
 
 		/**** L'UTILISATEUR CLIQUE ***/
-		if (Input.GetMouseButtonDown (0) && attachedObject == null) {
-			if (rayCasted) {
+		if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject == null)
+		{
+
+			if (rayCasted) 
+			{
 				objectFirstPlane = firstHit;
 				attachedObject = objectFirstPlane.rigidbody;
 				attachedObject.constraints = RigidbodyConstraints.None;
@@ -51,7 +54,8 @@ public class RayCastingController : MonoBehaviour {
 			}
 		}
 		/*** L'UTILISATEUR RECLIQUE (LACHE L'OBJET) ***/
-		else if (Input.GetMouseButtonDown (0) && attachedObject != null) {
+		else if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject != null)
+		{
 			Vector3 vect = new Vector3 (0, newSizeY / 4, 0);
 			attachedObject.transform.position += vect;
 			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
@@ -64,47 +68,47 @@ public class RayCastingController : MonoBehaviour {
 		if (attachedObject != null) {
 			hitInfo = Physics.RaycastAll (ray, (float)RAYCASTLENGTH);
 			if (hitInfo.Length > 0) {
-				hitInfo = orderHitInfo(hitInfo); // order hitInfo by distance
+				hitInfo = orderHitInfo (hitInfo); // order hitInfo by distance
 
 				objectFirstPlane = hitInfo [0]; // normalement == attachedObject
-				objectSizeInitial = attachedObject.transform.lossyScale;
+				objectSizeInitial = attachedObject.GetComponent<Renderer> ().bounds.size;
 
 				if (hitInfo.Length >= 2) {
 					RaycastHit objectSecondPlane;
 					objectSecondPlane = hitInfo [1];
 
-					if (attachedObjectCollision == null) {
-						if (objectSecondPlane.transform.CompareTag("terrain")) {
-							changePositionAndSizeOnGround (objectSecondPlane.point, objectSizeInitial.y);
-						} else {
-							if (objectFirstPlane.transform.CompareTag("terrain")) {
-								changePositionAndSizeOnGround (objectFirstPlane.point, objectSizeInitial.y);
-							} else if (objectFirstPlane.transform.CompareTag("draggable")) {
-
-								// attachedobject est derriere un objet au premier plan
-								// il faut le ramener au premier plan
-
-								/*
-								objectFirstPlane.rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-								// attachedObject.transform.position = objectFirstPlane.point - new Vector3(0, 0, attachedObject.transform.lossyScale.z);
-								Vector3 temp = Camera.main.transform.position - objectFirstPlane.point;
-								attachedObject.transform.position = temp - temp.normalized * attachedObject.transform.lossyScale.z;
-								Debug.LogError ("attachedObject position : " + attachedObject.transform.position);
-								Debug.LogError ("attachedObject scale : " + attachedObject.transform.lossyScale);
-								//changePositionAndSizeOnGround(objectFirstPlane.point, objectSizeInitial.y);
-								*/
-							}
-						}
-					} else {
-
-						// on pousse attachedObject jusqu'a un autre objet
-
-						Vector3 closestContactPoint = getClosestContactPoint (attachedObjectCollision.contacts);
-						//changePositionAndSizeOnGround(closestContactPoint, objectSizeInitial.y);
+					// 1er cas : le raycast passe par l'objet puis par le terrain
+					if (objectSecondPlane.transform.tag == "Terrain") {
+						changePositionAndSizeOnGround (objectSecondPlane.point, objectSizeInitial.y);
+					} 
+					// 2eme cas : le raycast passe par le terrain (mais pas par l'objet saisi)
+					else if (objectFirstPlane.transform.tag == "Terrain"){
+						changePositionAndSizeOnGround (objectFirstPlane.point, objectSizeInitial.y);
+					} 
+					// 3eme cas : le raycast passe par l'objet puis par un autre qui n'est pas le premier terrain
+					// typiquement : les montagnes
+					else if (hitInfo [0].transform.name == attachedObject.name) {
+						Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, attachedObject.transform.position);
+						attachedObject.transform.position = newPos;
 					}
+
+					//TODO Le cas ou un objet qui n'est pas le terrain passe entre nous et l'objet saisi
+				} 
+
+				// 4eme cas : le raycast passe seulement par l'objet
+				// typiquement : on vise le ciel
+				else if (hitInfo [0].transform.name == attachedObject.name) {
+					Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, attachedObject.transform.position);
+					attachedObject.transform.position = newPos;
 				}
 
 				lazer.GetComponent<Renderer> ().material = lazerOn;
+			} 
+			// 5eme cas : le raycast ne touche rien
+			// typiquement : on vise le ciel mais on perd le raycast sur l'objet
+			else {
+				Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, attachedObject.transform.position);
+				attachedObject.transform.position = newPos;
 			}
 		} 
 		/*** L'UTILISATEUR BOUGE LA SOURIS SANS CLIQUER ***/
@@ -120,19 +124,28 @@ public class RayCastingController : MonoBehaviour {
 
 
 	// If referenced object is the ground
-	private void changePositionAndSizeOnGround(Vector3 referencedPoint, float sizeY) {
+	private void changePositionAndSizeOnGround(Vector3 referenceObjectPoint, float sizeY)
+	{
 		// Calculate new size
 		Vector3 attachedObjectGroundPosition = attachedObject.position;
-		attachedObjectGroundPosition.y = referencedPoint.y;
+		attachedObjectGroundPosition.y = referenceObjectPoint.y;
 		float GroundDistanceFirstPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), attachedObjectGroundPosition);
-		float GroundDistanceSecondPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), referencedPoint);
+		float GroundDistanceSecondPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), referenceObjectPoint);
 
 		newSizeY = sizeY * (GroundDistanceSecondPlane / GroundDistanceFirstPlane);
 		ratio = newSizeY / sizeY;
 
-		// Translater
+		//DEBUG (uncomment what you need)
+		//Debug.Log("attachedObjectGroundPosition.y : " + attachedObjectGroundPosition.y);
+		//Debug.Log("GroundDistanceFirstPlane : " + GroundDistanceFirstPlane);
+		//Debug.Log("GroundDistanceSecondPlane : " + GroundDistanceSecondPlane);
+		//Debug.Log ("newSizeY : " + newSizeY + " ; sizeY : " + sizeY);
+		//Debug.Log ("ratio : " + ratio);
+
+
+		// Translate
 		Vector3 verticalReplacement = new Vector3 (0, newSizeY / 2, 0);
-		attachedObject.transform.position = referencedPoint + verticalReplacement;
+		attachedObject.transform.position = referenceObjectPoint + verticalReplacement;
 		attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 		//attachedObject.GetComponent<BoxCollider>().size = attachedObject.GetComponent<BoxCollider>().size * ratio;
 
