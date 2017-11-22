@@ -14,6 +14,7 @@ public class MirrorManagerScript : MonoBehaviour {
 	private Vector3 comparatorObjectSize;
 	private float distanceToObj;
 	private float distanceToPlayer;
+	private float ratio;
 
 
 
@@ -50,6 +51,41 @@ public class MirrorManagerScript : MonoBehaviour {
 
 	//TODO
 	public float newPlayerSize(){
-		return 0.5f;
+		if (distanceToObj < 25) {
+			if (distanceToPlayer < 2) {
+				ratio = 10.0f;
+
+				return ratio;
+			} else if (distanceToPlayer < 4) {
+				ratio = 5.0f;
+
+				return ratio;
+			} else if (distanceToPlayer < 5.5) {
+				ratio = 3.2f;
+
+				return ratio;
+			} else if (distanceToPlayer < 8) {
+				ratio = 2.0f;
+
+				return ratio;
+			} else if (distanceToPlayer < 12) {
+				ratio = 1.5f;
+
+				return ratio;
+			} else if (distanceToPlayer < 16) {
+				ratio = 1.0f;
+
+				return ratio;
+			} else {
+				ratio = 0.5f;
+
+				return ratio;
+			}
+		} else {
+			ratio = 1.0f;
+
+			return ratio;
+
+		}
 	}
 }
