@@ -8,6 +8,7 @@ TagManager:
   - undraggable
   - Terrain
   - mirror
+  - bordure
   layers:
   - Default
   - TransparentFX
