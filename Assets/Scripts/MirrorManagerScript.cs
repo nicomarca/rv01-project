@@ -18,8 +18,6 @@ public class MirrorManagerScript : MonoBehaviour {
 
 
 	void Start () {
-
-
 		InstantiateComparatorObject ();
 	}
 	
@@ -48,5 +46,10 @@ public class MirrorManagerScript : MonoBehaviour {
 		instantiateComparatorObject.transform.Rotate(new Vector3(90, 0, 0));
 		instantiateComparatorObject.transform.localScale = new Vector3 (instantiateComparatorObject.transform.localScale.x * ratio, instantiateComparatorObject.transform.localScale.y * ratio, instantiateComparatorObject.transform.localScale.z * ratio);
 
+	}
+
+	//TODO
+	public float newPlayerSize(){
+		return 0.5f;
 	}
 }

@@ -13,25 +13,26 @@ public class RayCastingController : MonoBehaviour {
 	private Vector3 	objectSizeInitial;  		// Initial size of the object
 	private Collision	attachedObjectCollision;	// Collision of the attachedObject
 
-	public Material 	lazerOff, lazerOK, lazerOn; // Lazer colors
+	public Material 	lazerOff, lazerOK, lazerOn, lazerMirror; // Lazer colors
 	public GameObject 	lazer;						// Lazer of the wand 
 	public GameObject	wand;						// wand in the right hand of the user
 
-	public GameObject	player;						// player
 	private Vector3		oldPlayerPos;				// player position before update
+
+	public GameObject mirrorManager;				// mirror manager to change player size
 
 	void Start () {
 		distanceToObj = -1;
 		attachedObjectCollision = null;
 		lazer.GetComponent<Renderer> ().material = lazerOff;
-		oldPlayerPos = player.transform.position;
+		oldPlayerPos = transform.position;
 	}
 
 
 	void Update () {
 
 		// Si l'utilisateur bouge, on bouge l'attached object (si il existe) avec lui
-		// on actualise pas sa taille (car la taille apparente ne change pas)
+		// on actualise pas la taille d'attachedObject car la taille apparente ne change pas
 		if (playerMoving ()) {
 			return;
 		}
@@ -43,18 +44,19 @@ public class RayCastingController : MonoBehaviour {
 		Ray ray = new Ray(wand.transform.position, wand.transform.up);
 		Debug.DrawRay (ray.origin, ray.direction * RAYCASTLENGTH, Color.blue);
 		bool rayCasted = Physics.Raycast (ray, out firstHit, RAYCASTLENGTH);
+		bool mirrorCasted = false;
 
 		if (rayCasted) 
 		{
 			rayCasted = firstHit.transform.CompareTag ("draggable");
+			mirrorCasted = firstHit.transform.CompareTag ("mirror");
 		}
 
 		/**** L'UTILISATEUR CLIQUE ***/
 		if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject == null)
 		{
 
-			if (rayCasted) 
-			{
+			if (rayCasted) {
 				objectFirstPlane = firstHit;
 				attachedObject = objectFirstPlane.rigidbody;
 				attachedObject.constraints = RigidbodyConstraints.None;
@@ -62,13 +64,19 @@ public class RayCastingController : MonoBehaviour {
 				distanceToObj = objectFirstPlane.distance;
 				attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 				// setAttachedObjectOrientation ();
+			} 
+
+			else if (mirrorCasted) {
+				float ratioNewPlayerSize = mirrorManager.GetComponent<MirrorManagerScript> ().newPlayerSize ();
+				transform.position = new Vector3(transform.position.x, transform.position.y * ratioNewPlayerSize, transform.position.z);
+				transform.localScale *= ratioNewPlayerSize;
 			}
 		}
 		/*** L'UTILISATEUR RECLIQUE (LACHE L'OBJET) ***/
 		else if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject != null)
 		{
-			Vector3 vect = new Vector3 (0, newSizeY / 4, 0);
-			attachedObject.transform.position += vect;
+			//Vector3 vect = new Vector3 (0, newSizeY / 4, 0);
+			//attachedObject.transform.position += vect;
 			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 			attachedObject.isKinematic = false;
 			attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
@@ -128,10 +136,11 @@ public class RayCastingController : MonoBehaviour {
 		} 
 		/*** L'UTILISATEUR BOUGE LA SOURIS SANS CLIQUER ***/
 		else {
-			if (rayCasted) {
+			if (mirrorCasted) {
+				lazer.GetComponent<Renderer> ().material = lazerMirror;
+			} else if (rayCasted) {
 				lazer.GetComponent<Renderer> ().material = lazerOK;
-			} 
-			else {
+			} else {
 				lazer.GetComponent<Renderer> ().material = lazerOff;
 			}
 		}
@@ -212,13 +221,13 @@ public class RayCastingController : MonoBehaviour {
 	}
 
 	private bool playerMoving(){
-		if (player.transform.position == oldPlayerPos) {
+		if (transform.position == oldPlayerPos) {
 			return false;
 		} else {
 			if (attachedObject != null) {
-				attachedObject.transform.position += player.transform.position - oldPlayerPos;
+				attachedObject.transform.position += transform.position - oldPlayerPos;
 			}
-			oldPlayerPos = player.transform.position;
+			oldPlayerPos = transform.position;
 			return true;
 		}
 	}
@@ -230,7 +239,6 @@ public class RayCastingController : MonoBehaviour {
 	public Collision getAttachedObjectCollision() {
 		return attachedObjectCollision;
 	}
-
 }
 
 
