@@ -17,10 +17,12 @@ public class CollisionScript : MonoBehaviour {
 	}
 
 	void OnCollisionEnter(Collision collision) {
+		/*
 		if (collision.gameObject.transform.CompareTag("draggable")) {
 			collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.FreezeAll;
 			fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (collision);
 		}
+		*/
 	}
 
 	void OnCollisionStay(Collision collision) {
@@ -28,10 +30,12 @@ public class CollisionScript : MonoBehaviour {
 	}
 
 	void OnCollisionExit(Collision collision) {
+		/*
 		if (collision.gameObject.transform.CompareTag("draggable")) {
 			collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.None;
 			fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (null);
 		}
+		*/
 	}
 
 }

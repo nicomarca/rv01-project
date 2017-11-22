@@ -4,6 +4,7 @@ using UnityEngine.VR;
 
 
 public class RayCastingController : MonoBehaviour {
+	
 	private const int 	RAYCASTLENGTH = 200;		// Length of the ray
 
 	private float 		distanceToObj;				// Distance entre le personnage et l'objet saisi
@@ -12,14 +13,14 @@ public class RayCastingController : MonoBehaviour {
 	private Rigidbody 	attachedObject;				// Objet saisi, null si aucun objet saisi
 	private Vector3 	objectSizeInitial;  		// Initial size of the object
 	private Collision	attachedObjectCollision;	// Collision of the attachedObject
-
-	public Material 	lazerOff, lazerOK, lazerOn, lazerMirror; // Lazer colors
-	public GameObject 	lazer;						// Lazer of the wand 
-	public GameObject	wand;						// wand in the right hand of the user
-
 	private Vector3		oldPlayerPos;				// player position before update
 
-	public GameObject mirrorManager;				// mirror manager to change player size
+	public Material 	lazerOff, lazerOK;			// Lazer colors
+	public Material		lazerOn, lazerMirror; 		// Lazer colors
+	public GameObject 	lazer;						// Lazer of the wand 
+	public GameObject	wand;						// wand in the right hand of the user
+	public GameObject	mirrorManager;				// mirror manager to change player size
+
 
 	void Start () {
 		distanceToObj = -1;
@@ -33,6 +34,7 @@ public class RayCastingController : MonoBehaviour {
 
 		// Si l'utilisateur bouge, on bouge l'attached object (si il existe) avec lui
 		// on actualise pas la taille d'attachedObject car la taille apparente ne change pas
+
 		if (playerMoving ()) {
 			return;
 		}
@@ -59,7 +61,7 @@ public class RayCastingController : MonoBehaviour {
 			if (rayCasted) {
 				objectFirstPlane = firstHit;
 				attachedObject = objectFirstPlane.rigidbody;
-				attachedObject.constraints = RigidbodyConstraints.None;
+				//attachedObject.constraints = RigidbodyConstraints.None;
 				attachedObject.isKinematic = true;
 				distanceToObj = objectFirstPlane.distance;
 				attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
@@ -92,7 +94,7 @@ public class RayCastingController : MonoBehaviour {
 				hitInfo = orderHitInfo (hitInfo); // order hitInfo by distance
 
 				objectFirstPlane = hitInfo [0]; // normalement == attachedObject
-				objectSizeInitial = attachedObject.GetComponent<Renderer> ().bounds.size;
+				objectSizeInitial = attachedObject.transform.lossyScale;
 
 				if (hitInfo.Length >= 2) {
 					RaycastHit objectSecondPlane;
@@ -161,25 +163,19 @@ public class RayCastingController : MonoBehaviour {
 
 		//DEBUG (uncomment what you need)
 		//Debug.Log("attachedObjectGroundPosition.y : " + attachedObjectGroundPositi   on.y);
+		//Debug.Log("referenceObjectPoint : " + referenceObjectPoint);
 		//Debug.Log("GroundDistanceFirstPlane : " + GroundDistanceFirstPlane);
 		//Debug.Log("GroundDistanceSecondPlane : " + GroundDistanceSecondPlane);
 		//Debug.Log ("newSizeY : " + newSizeY + " ; sizeY : " + sizeY);
 		//Debug.Log ("ratio : " + ratio); 
 
-
 		// Translate
 		Vector3 verticalReplacement = new Vector3 (0, newSizeY / 2, 0);
 		attachedObject.transform.position = referenceObjectPoint + verticalReplacement;
 		attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
-		//attachedObject.GetComponent<BoxCollider>().size = attachedObject.GetComponent<BoxCollider>().size * ratio;
-
 
 		// Rotation
-		Vector3 rotationVector = attachedObject.transform.rotation.eulerAngles;
-		// rotationVector.x = 0;
-		rotationVector.y = wand.transform.rotation.eulerAngles.y;
-		// rotationVector.z = 0;
-		attachedObject.transform.rotation = Quaternion.Euler (rotationVector);
+		setAttachedObjectOrientation();
 	}
 
 	// If referenced object is an other object
@@ -189,10 +185,9 @@ public class RayCastingController : MonoBehaviour {
 
 
 	private void setAttachedObjectOrientation() {
-		Vector3 rotationVector = attachedObject.transform.rotation.eulerAngles;
+		var rotationVector = attachedObject.transform.rotation.eulerAngles;
 		rotationVector.y = wand.transform.rotation.eulerAngles.y;
-		Quaternion quaternionArrival = Quaternion.Euler (rotationVector);
-		attachedObject.transform.rotation = Quaternion.Slerp (attachedObject.transform.rotation, quaternionArrival, 0.1f);
+		attachedObject.transform.rotation = Quaternion.Euler(rotationVector);
 	}
 
 
@@ -222,7 +217,7 @@ public class RayCastingController : MonoBehaviour {
 		return closestPoint;
 	}
 
-	private bool playerMoving(){
+	private bool playerMoving() {
 		if (transform.position == oldPlayerPos) {
 			return false;
 		} else {

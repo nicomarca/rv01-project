@@ -24,12 +24,12 @@ public class MirrorManagerScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		Debug.Log (gameObject.transform.parent.name +" position " + gameObject.transform.parent.position);
+		//Debug.Log (gameObject.transform.parent.name +" position " + gameObject.transform.parent.position);
 		distanceToObj = Vector3.Distance (gameObject.transform.parent.position - new Vector3(0, gameObject.transform.parent.position.y, 0)  , instantiateComparatorObject.transform.position - new Vector3(0, instantiateComparatorObject.transform.position.y, 0));
 		distanceToPlayer = Vector3.Distance (gameObject.transform.parent.position  - new Vector3(0, gameObject.transform.parent.position.y, 0) , playerSkin.transform.position - new Vector3(0, playerSkin.transform.position.y, 0));
 
-		Debug.Log (distanceToObj);
-		Debug.Log ("Distance to Player " + distanceToPlayer);
+		//Debug.Log (distanceToObj);
+		//Debug.Log ("Distance to Player " + distanceToPlayer);
 
 
 		
