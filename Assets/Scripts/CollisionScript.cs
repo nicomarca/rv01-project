@@ -8,7 +8,7 @@ public class CollisionScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		fpsCharacter = GameObject.Find ("FirstPersonCharacter");
+		fpsCharacter = GameObject.Find ("Player");
 	}
 	
 	// Update is called once per frame
@@ -23,6 +23,10 @@ public class CollisionScript : MonoBehaviour {
 			fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (collision);
 		}
 		*/
+		if(collision.gameObject.GetComponent<Rigidbody>() != null) {
+			collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.FreezeAll;
+			fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (collision);
+		}
 	}
 
 	void OnCollisionStay(Collision collision) {
@@ -36,6 +40,10 @@ public class CollisionScript : MonoBehaviour {
 			fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (null);
 		}
 		*/
+		if(collision.gameObject.GetComponent<Rigidbody>() != null) {
+			collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.FreezeAll;
+			fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (collision);
+		}
 	}
 
 }

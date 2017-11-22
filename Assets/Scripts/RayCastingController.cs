@@ -48,16 +48,13 @@ public class RayCastingController : MonoBehaviour {
 		bool rayCasted = Physics.Raycast (ray, out firstHit, RAYCASTLENGTH);
 		bool mirrorCasted = false;
 
-		if (rayCasted) 
-		{
+		if (rayCasted) {
 			rayCasted = firstHit.transform.CompareTag ("draggable");
 			mirrorCasted = firstHit.transform.CompareTag ("mirror");
 		}
 
 		/**** L'UTILISATEUR CLIQUE ***/
-		if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject == null)
-		{
-
+		if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject == null) {
 			if (rayCasted) {
 				objectFirstPlane = firstHit;
 				attachedObject = objectFirstPlane.rigidbody;
@@ -75,8 +72,7 @@ public class RayCastingController : MonoBehaviour {
 			}
 		}
 		/*** L'UTILISATEUR RECLIQUE (LACHE L'OBJET) ***/
-		else if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject != null)
-		{
+		else if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject != null) {
 			//Vector3 vect = new Vector3 (0, newSizeY / 4, 0);
 			//attachedObject.transform.position += vect;
 			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
@@ -102,25 +98,37 @@ public class RayCastingController : MonoBehaviour {
 
 					// 1er cas : le raycast passe par l'objet puis par le terrain
 					if (objectSecondPlane.transform.tag == "Terrain") {
+						Debug.Log("Dans le 1er cas");
 						changePositionAndSizeOnGround (objectSecondPlane.point, objectSizeInitial.y);
 					} 
 					// 2eme cas : le raycast passe par le terrain (mais pas par l'objet saisi)
 					else if (objectFirstPlane.transform.tag == "Terrain"){
+						Debug.Log("Dans le 2eme cas");
 						changePositionAndSizeOnGround (objectFirstPlane.point, objectSizeInitial.y);
 					} 
 					// 3eme cas : le raycast passe par l'objet puis par un autre qui n'est pas le premier terrain
-					// typiquement : les montagnes
-					else if (hitInfo [0].transform.name == attachedObject.name) {
-						Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, attachedObject.transform.position);
+					// typiquement : la tour
+					else if (hitInfo[0].transform.gameObject.GetInstanceID() == attachedObject.gameObject.GetInstanceID() 
+						&& !(hitInfo[1].transform.tag == "bordure")) {
+						Debug.Log("Dans le 3eme cas");
+						Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, hitInfo[1].point);
+						if (newPos.y < attachedObject.transform.lossyScale.y / 2f) {
+							newPos.y = attachedObject.transform.lossyScale.y / 2f;
+						}
 						attachedObject.transform.position = newPos;
 					}
-
-					//TODO Le cas ou un objet qui n'est pas le terrain passe entre nous et l'objet saisi
-				} 
-
-				// 4eme cas : le raycast passe seulement par l'objet
+					// 4eme cas : un objet est entre nous et attachedObject
+					else if(hitInfo[0].transform.gameObject.GetInstanceID() != attachedObject.gameObject.GetInstanceID() 
+						&& hitInfo[1].transform.gameObject.GetInstanceID() == attachedObject.gameObject.GetInstanceID()) {
+						//rebaseObjectInFirstPlane ();
+						Debug.Log("Dans le 4eme cas");
+						changePositionAndSizeOnGround (objectFirstPlane.point, objectSizeInitial.y);
+					}
+				}
+				// 5eme cas : le raycast passe seulement par l'objet
 				// typiquement : on vise le ciel
-				else if (hitInfo [0].transform.name == attachedObject.name) {
+				else if (hitInfo[0].transform.gameObject.GetInstanceID() == attachedObject.gameObject.GetInstanceID()) {
+					Debug.Log("Dans le 5eme cas");
 					Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, attachedObject.transform.position);
 					attachedObject.transform.position = newPos;
 					//setAttachedObjectOrientation ();
@@ -128,7 +136,7 @@ public class RayCastingController : MonoBehaviour {
 
 				lazer.GetComponent<Renderer> ().material = lazerOn;
 			} 
-			// 5eme cas : le raycast ne touche rien
+			// 6eme cas : le raycast ne touche rien
 			// typiquement : on vise le ciel mais on perd le raycast sur l'objet
 			else {
 				Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, attachedObject.transform.position);
@@ -150,8 +158,8 @@ public class RayCastingController : MonoBehaviour {
 
 
 	// If referenced object is the ground
-	private void changePositionAndSizeOnGround(Vector3 referenceObjectPoint, float sizeY)
-	{
+	private void changePositionAndSizeOnGround(Vector3 referenceObjectPoint, float sizeY) {
+		Debug.Log("Dans le changePositionAndSizeOnGround");
 		// Calculate new size
 		Vector3 attachedObjectGroundPosition = attachedObject.position;
 		attachedObjectGroundPosition.y = referenceObjectPoint.y;
@@ -167,15 +175,15 @@ public class RayCastingController : MonoBehaviour {
 		//Debug.Log("GroundDistanceFirstPlane : " + GroundDistanceFirstPlane);
 		//Debug.Log("GroundDistanceSecondPlane : " + GroundDistanceSecondPlane);
 		//Debug.Log ("newSizeY : " + newSizeY + " ; sizeY : " + sizeY);
-		//Debug.Log ("ratio : " + ratio); 
+		//Debug.Log ("ratio : " + ratio);
+
+		// Rotation
+		setAttachedObjectOrientation();
 
 		// Translate
 		Vector3 verticalReplacement = new Vector3 (0, newSizeY / 2, 0);
 		attachedObject.transform.position = referenceObjectPoint + verticalReplacement;
 		attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
-
-		// Rotation
-		setAttachedObjectOrientation();
 	}
 
 	// If referenced object is an other object
@@ -186,7 +194,9 @@ public class RayCastingController : MonoBehaviour {
 
 	private void setAttachedObjectOrientation() {
 		var rotationVector = attachedObject.transform.rotation.eulerAngles;
+		rotationVector.x = 0;
 		rotationVector.y = wand.transform.rotation.eulerAngles.y;
+		rotationVector.z = 0;
 		attachedObject.transform.rotation = Quaternion.Euler(rotationVector);
 	}
 
