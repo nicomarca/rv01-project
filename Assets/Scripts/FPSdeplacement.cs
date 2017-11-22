@@ -6,8 +6,8 @@ using UnityEngine.VR;
 
 public class FPSdeplacement : MonoBehaviour {
 
-	public float tSpeed = 0.15f;
-	public float rSpeed = 8f;
+	public float tSpeed;
+	public float rSpeed;
 
 	private bool vr = false;
 
@@ -47,9 +47,13 @@ public class FPSdeplacement : MonoBehaviour {
 			}
 			if (Input.GetKey("right")) {
 				transform.Rotate(Vector3.up, rSpeed);
-
 			}
-
+			if (Input.GetKey("up")) {
+				transform.Rotate(Vector3.right, -rSpeed);
+			}
+			if (Input.GetKey ("down")) {
+				transform.Rotate (Vector3.right, rSpeed);
+			}
 		}
 		}
 		

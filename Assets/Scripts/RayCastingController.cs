@@ -13,18 +13,30 @@ public class RayCastingController : MonoBehaviour {
 	private Vector3 	objectSizeInitial;  		// Initial size of the object
 	private Collision	attachedObjectCollision;	// Collision of the attachedObject
 
-	public Material 	lazerOff, lazerOK, lazerOn; // Lazer colors
+	public Material 	lazerOff, lazerOK, lazerOn, lazerMirror; // Lazer colors
 	public GameObject 	lazer;						// Lazer of the wand 
 	public GameObject	wand;						// wand in the right hand of the user
+
+	private Vector3		oldPlayerPos;				// player position before update
+
+	public GameObject mirrorManager;				// mirror manager to change player size
 
 	void Start () {
 		distanceToObj = -1;
 		attachedObjectCollision = null;
 		lazer.GetComponent<Renderer> ().material = lazerOff;
+		oldPlayerPos = transform.position;
 	}
 
 
 	void Update () {
+
+		// Si l'utilisateur bouge, on bouge l'attached object (si il existe) avec lui
+		// on actualise pas la taille d'attachedObject car la taille apparente ne change pas
+		if (playerMoving ()) {
+			return;
+		}
+			
 		RaycastHit[] hitInfo;
 		RaycastHit firstHit;
 		RaycastHit objectFirstPlane;
@@ -32,18 +44,19 @@ public class RayCastingController : MonoBehaviour {
 		Ray ray = new Ray(wand.transform.position, wand.transform.up);
 		Debug.DrawRay (ray.origin, ray.direction * RAYCASTLENGTH, Color.blue);
 		bool rayCasted = Physics.Raycast (ray, out firstHit, RAYCASTLENGTH);
+		bool mirrorCasted = false;
 
 		if (rayCasted) 
 		{
 			rayCasted = firstHit.transform.CompareTag ("draggable");
+			mirrorCasted = firstHit.transform.CompareTag ("mirror");
 		}
 
 		/**** L'UTILISATEUR CLIQUE ***/
 		if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject == null)
 		{
 
-			if (rayCasted) 
-			{
+			if (rayCasted) {
 				objectFirstPlane = firstHit;
 				attachedObject = objectFirstPlane.rigidbody;
 				attachedObject.constraints = RigidbodyConstraints.None;
@@ -51,13 +64,19 @@ public class RayCastingController : MonoBehaviour {
 				distanceToObj = objectFirstPlane.distance;
 				attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 				// setAttachedObjectOrientation ();
+			} 
+
+			else if (mirrorCasted) {
+				float ratioNewPlayerSize = mirrorManager.GetComponent<MirrorManagerScript> ().newPlayerSize ();
+				transform.position = new Vector3(transform.position.x, transform.position.y * ratioNewPlayerSize, transform.position.z);
+				transform.localScale *= ratioNewPlayerSize;
 			}
 		}
 		/*** L'UTILISATEUR RECLIQUE (LACHE L'OBJET) ***/
 		else if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject != null)
 		{
-			Vector3 vect = new Vector3 (0, newSizeY / 4, 0);
-			attachedObject.transform.position += vect;
+			//Vector3 vect = new Vector3 (0, newSizeY / 4, 0);
+			//attachedObject.transform.position += vect;
 			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 			attachedObject.isKinematic = false;
 			attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
@@ -66,7 +85,9 @@ public class RayCastingController : MonoBehaviour {
 
 		/*** L'UTILISATEUR A L'OBJET DANS LA MAIN ***/
 		if (attachedObject != null) {
+
 			hitInfo = Physics.RaycastAll (ray, (float)RAYCASTLENGTH);
+
 			if (hitInfo.Length > 0) {
 				hitInfo = orderHitInfo (hitInfo); // order hitInfo by distance
 
@@ -100,6 +121,7 @@ public class RayCastingController : MonoBehaviour {
 				else if (hitInfo [0].transform.name == attachedObject.name) {
 					Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, attachedObject.transform.position);
 					attachedObject.transform.position = newPos;
+					//setAttachedObjectOrientation ();
 				}
 
 				lazer.GetComponent<Renderer> ().material = lazerOn;
@@ -109,14 +131,16 @@ public class RayCastingController : MonoBehaviour {
 			else {
 				Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, attachedObject.transform.position);
 				attachedObject.transform.position = newPos;
+
 			}
 		} 
 		/*** L'UTILISATEUR BOUGE LA SOURIS SANS CLIQUER ***/
 		else {
-			if (rayCasted) {
+			if (mirrorCasted) {
+				lazer.GetComponent<Renderer> ().material = lazerMirror;
+			} else if (rayCasted) {
 				lazer.GetComponent<Renderer> ().material = lazerOK;
-			} 
-			else {
+			} else {
 				lazer.GetComponent<Renderer> ().material = lazerOff;
 			}
 		}
@@ -136,11 +160,11 @@ public class RayCastingController : MonoBehaviour {
 		ratio = newSizeY / sizeY;
 
 		//DEBUG (uncomment what you need)
-		//Debug.Log("attachedObjectGroundPosition.y : " + attachedObjectGroundPosition.y);
+		//Debug.Log("attachedObjectGroundPosition.y : " + attachedObjectGroundPositi   on.y);
 		//Debug.Log("GroundDistanceFirstPlane : " + GroundDistanceFirstPlane);
 		//Debug.Log("GroundDistanceSecondPlane : " + GroundDistanceSecondPlane);
 		//Debug.Log ("newSizeY : " + newSizeY + " ; sizeY : " + sizeY);
-		//Debug.Log ("ratio : " + ratio);
+		//Debug.Log ("ratio : " + ratio); 
 
 
 		// Translate
@@ -148,6 +172,7 @@ public class RayCastingController : MonoBehaviour {
 		attachedObject.transform.position = referenceObjectPoint + verticalReplacement;
 		attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 		//attachedObject.GetComponent<BoxCollider>().size = attachedObject.GetComponent<BoxCollider>().size * ratio;
+
 
 		// Rotation
 		Vector3 rotationVector = attachedObject.transform.rotation.eulerAngles;
@@ -162,14 +187,14 @@ public class RayCastingController : MonoBehaviour {
 		attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, referecendPoint, 100.0f);
 	}
 
-	/*
+
 	private void setAttachedObjectOrientation() {
 		Vector3 rotationVector = attachedObject.transform.rotation.eulerAngles;
 		rotationVector.y = wand.transform.rotation.eulerAngles.y;
 		Quaternion quaternionArrival = Quaternion.Euler (rotationVector);
 		attachedObject.transform.rotation = Quaternion.Slerp (attachedObject.transform.rotation, quaternionArrival, 0.1f);
 	}
-	*/
+
 
 	// Order hitInfo by distance
 	private RaycastHit[] orderHitInfo(RaycastHit[] hitInfo) {
@@ -197,6 +222,18 @@ public class RayCastingController : MonoBehaviour {
 		return closestPoint;
 	}
 
+	private bool playerMoving(){
+		if (transform.position == oldPlayerPos) {
+			return false;
+		} else {
+			if (attachedObject != null) {
+				attachedObject.transform.position += transform.position - oldPlayerPos;
+			}
+			oldPlayerPos = transform.position;
+			return true;
+		}
+	}
+
 	public void setAttachedObjectCollision(Collision collision) {
 		attachedObjectCollision = collision;
 	}
@@ -204,7 +241,6 @@ public class RayCastingController : MonoBehaviour {
 	public Collision getAttachedObjectCollision() {
 		return attachedObjectCollision;
 	}
-
 }
 
 
