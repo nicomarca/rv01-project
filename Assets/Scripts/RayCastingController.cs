@@ -151,9 +151,9 @@ public class RayCastingController : MonoBehaviour {
 
 		// Rotation
 		Vector3 rotationVector = attachedObject.transform.rotation.eulerAngles;
-		rotationVector.y = 0;
+		// rotationVector.x = 0;
 		rotationVector.y = wand.transform.rotation.eulerAngles.y;
-		rotationVector.y = 0;
+		// rotationVector.z = 0;
 		attachedObject.transform.rotation = Quaternion.Euler (rotationVector);
 	}
 
