@@ -812,7 +812,7 @@ MonoBehaviour:
   lazerMirror: {fileID: 0}
   lazer: {fileID: 1156187812}
   wand: {fileID: 748459828}
-  mirrorManager: {fileID: 0}
+  mirrorManager: {fileID: 948913217}
 --- !u!4 &1267195280
 Transform:
   m_ObjectHideFlags: 0
