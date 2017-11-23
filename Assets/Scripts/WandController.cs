@@ -5,6 +5,7 @@ using UnityEngine.VR;
 
 public class WandController : MonoBehaviour
 {
+	private bool VR = false;
 
 	// Use this for initialization
 	void Start ()
@@ -16,7 +17,7 @@ public class WandController : MonoBehaviour
 	void Update () {
 		//Debug.Log (InputTracking.GetLocalPosition (VRNode.RightHand));
 		//Debug.Log (InputTracking.GetLocalPosition (VRNode.LeftHand));
-		if (InputTracking.GetLocalPosition (VRNode.RightHand) != Vector3.zero) {
+		if (VR) {
 			//transform.localPosition = InputTracking.GetLocalPosition (VRNode.RightHand);
 			transform.rotation = InputTracking.GetLocalRotation (VRNode.RightHand);
 
