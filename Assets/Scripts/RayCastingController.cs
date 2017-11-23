@@ -19,6 +19,7 @@ public class RayCastingController : MonoBehaviour {
 	public Material		lazerOn, lazerMirror; 		// Lazer colors
 	public GameObject 	lazer;						// Lazer of the wand 
 	public GameObject	wand;						// wand in the right hand of the user
+	public GameObject	skin;						// skin of the user 
 	public GameObject	mirrorManager;				// mirror manager to change player size
 
 
@@ -69,6 +70,8 @@ public class RayCastingController : MonoBehaviour {
 				float ratioNewPlayerSize = mirrorManager.GetComponent<MirrorManagerScript> ().newPlayerSize ();
 				transform.position = new Vector3(transform.position.x, transform.position.y * ratioNewPlayerSize, transform.position.z);
 				transform.localScale *= ratioNewPlayerSize;
+				Vector3 comparatorObjectPosition = mirrorManager.GetComponent<MirrorManagerScript> ().comparatorObject.transform.position;
+				//transform.position = new Vector3(comparatorObjectPosition.x, skin.transform.lossyScale.y/2, comparatorObjectPosition.z + skin.transform.lossyScale.z/1.5f);
 			}
 		}
 		/*** L'UTILISATEUR RECLIQUE (LACHE L'OBJET) ***/
