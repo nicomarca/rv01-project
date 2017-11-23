@@ -41,7 +41,7 @@ public class CollisionScript : MonoBehaviour {
 		}
 		*/
 		if(collision.gameObject.GetComponent<Rigidbody>() != null) {
-			collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.FreezeAll;
+			collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.None;
 			fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (collision);
 		}
 	}

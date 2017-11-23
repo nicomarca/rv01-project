@@ -116,6 +116,7 @@ public class RayCastingController : MonoBehaviour {
 							newPos.y = attachedObject.transform.lossyScale.y / 2f;
 						}
 						attachedObject.transform.position = newPos;
+						setAttachedObjectOrientation ();
 					}
 					// 4eme cas : un objet est entre nous et attachedObject
 					else if(hitInfo[0].transform.gameObject.GetInstanceID() != attachedObject.gameObject.GetInstanceID() 
@@ -130,8 +131,9 @@ public class RayCastingController : MonoBehaviour {
 				else if (hitInfo[0].transform.gameObject.GetInstanceID() == attachedObject.gameObject.GetInstanceID()) {
 					Debug.Log("Dans le 5eme cas");
 					Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, attachedObject.transform.position);
-					attachedObject.transform.position = newPos;
-					//setAttachedObjectOrientation ();
+					Vector3 diffZ = new Vector3 (0, 0, attachedObject.transform.lossyScale.z / 2);
+					attachedObject.transform.position = newPos - diffZ;
+					setAttachedObjectOrientationOnSky ();
 				}
 
 				lazer.GetComponent<Renderer> ().material = lazerOn;
@@ -191,12 +193,16 @@ public class RayCastingController : MonoBehaviour {
 		attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, referecendPoint, 100.0f);
 	}
 
-
 	private void setAttachedObjectOrientation() {
 		var rotationVector = attachedObject.transform.rotation.eulerAngles;
 		rotationVector.x = 0;
 		rotationVector.y = wand.transform.rotation.eulerAngles.y;
 		rotationVector.z = 0;
+		attachedObject.transform.rotation = Quaternion.Euler(rotationVector);
+	}
+
+	private void setAttachedObjectOrientationOnSky() {
+		var rotationVector = wand.transform.rotation.eulerAngles;
 		attachedObject.transform.rotation = Quaternion.Euler(rotationVector);
 	}
 
