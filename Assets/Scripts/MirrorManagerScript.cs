@@ -76,11 +76,21 @@ public class MirrorManagerScript : MonoBehaviour {
 				ratio = 1.0f;
 
 				return ratio;
-			} else {
-				ratio = 0.5f;
+			} else if (distanceToPlayer < 20) {
+				ratio = 4.0f/5.0f;
+				return ratio;
+			}
+			else if (distanceToPlayer < 25) {
+				ratio = 3.0f/5.0f;
 
 				return ratio;
 			}
+			else{
+				ratio = 2.0f/5.0f;
+
+				return ratio;
+			}
+
 		} else {
 			ratio = 1.0f;
 
