@@ -73,7 +73,7 @@ public class RayCastingController : MonoBehaviour {
 				distanceToObj = objectFirstPlane.distance;
 				attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
-				attachedObject.GetComponent<CollisionScript> ().enabled = true;
+				attachedObject.gameObject.AddComponent<CollisionScript>();
 				// setAttachedObjectOrientation ();
 			} 
 
@@ -92,7 +92,7 @@ public class RayCastingController : MonoBehaviour {
 			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 			attachedObject.isKinematic = false;
 			attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
-			attachedObject.GetComponent<CollisionScript> ().enabled = false;
+			GameObject.Destroy(attachedObject.gameObject.GetComponent<CollisionScript>());
 			attachedObject = null;
 		}
 
