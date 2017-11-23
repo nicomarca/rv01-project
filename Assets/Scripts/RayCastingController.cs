@@ -143,21 +143,20 @@ public class RayCastingController : MonoBehaviour {
 					         && hitInfo [1].transform.gameObject.GetInstanceID () == attachedObject.gameObject.GetInstanceID ()) {
 						//rebaseObjectInFirstPlane ();
 						Debug.Log ("Dans le 4eme cas");
-						moveObjectAgainst (ray, objectFirstPlane.point, new Axis(false, false, true));
+						moveObjectAgainst (ray, objectFirstPlane.point, new Axis(false, false, false), false);
 					}
-					// juste un autre objet en premier plan
+
+					// les autres cas non identifiés (dans le doute on offset vers nous)
 					else {
+						Debug.Log ("Dans le 1er cas mystère");
 						moveObjectAgainst (ray, hitInfo [0].point, new Axis(false, false, true));
 					}
 
-					/*
-					} else {
-						moveObjectAgainstOtherObject (ray, hitInfo [1].point);
-					}
-					*/
-
 
 				}
+
+				// hitInfo.Length == 1
+
 				// 5eme cas : le raycast passe seulement par l'objet
 				// typiquement : on vise le ciel
 				else if (hitInfo[0].transform.gameObject.GetInstanceID() == attachedObject.gameObject.GetInstanceID()) {
@@ -165,13 +164,21 @@ public class RayCastingController : MonoBehaviour {
 					moveObjectAgainst (ray, attachedObject.transform.position, new Axis(false, false, false));
 				}
 
+				// les autres cas non identifiés (dans le doute on offset vers nous)
+				else {
+					Debug.Log ("Dans le 2eme cas mystère");
+					moveObjectAgainst (ray, attachedObject.transform.position, new Axis(false, false, true));
+				}
+
+
 				lazer.GetComponent<Renderer> ().material = lazerOn;
 			} 
 			// 6eme cas : le raycast ne touche rien
 			// typiquement : on vise le ciel mais on perd le raycast sur l'objet
 			else {
+				Debug.Log("Dans le 6eme cas");
 				Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, attachedObject.transform.position);
-				attachedObject.transform.position = newPos;
+				moveObjectAgainst (ray, attachedObject.transform.position, new Axis(false, false, false));
 			}
 		} 
 		/*** L'UTILISATEUR BOUGE LA SOURIS SANS CLIQUER ***/
@@ -190,7 +197,7 @@ public class RayCastingController : MonoBehaviour {
 	/** moveObjectAgainst permet de plaquer un objet contre une autre surface tout en
 	 * décalant l'objet d'un offset horizontal/vertical/les deux
 	 **/
-	private void moveObjectAgainst (Ray ray, Vector3 referencePoint, Axis offsetAxis) {
+	private void moveObjectAgainst (Ray ray, Vector3 referencePoint, Axis offsetAxis, bool teleport = false) {
 		float offsetX = 0;
 		float offsetY = 0;
 		float offsetZ = 0;
@@ -215,10 +222,10 @@ public class RayCastingController : MonoBehaviour {
 			newPos.y = attachedObject.transform.lossyScale.y / 2f;
 		}
 
-		changePositionAndSize (newPos);
+		changePositionAndSize (newPos, teleport);
 	}
 
-	private void changePositionAndSize (Vector3 newPosition) {
+	private void changePositionAndSize (Vector3 newPosition, bool teleport) {
 		Vector3 attachedObjectGroundPosition = attachedObject.position;
 		attachedObjectGroundPosition.y = newPosition.y;
 		float GroundDistanceFirstPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), attachedObjectGroundPosition);
@@ -229,7 +236,13 @@ public class RayCastingController : MonoBehaviour {
 		ratio = newSizeY / sizeY;
 
 		setAttachedObjectOrientation ();
-		attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, newPosition, 100.0f);
+
+		if (teleport) {
+			attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, newPosition, 100.0f);
+		} else {
+			attachedObject.transform.position = newPosition;
+		}
+
 		attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 	}
 
