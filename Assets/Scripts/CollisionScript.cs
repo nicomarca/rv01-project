@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class CollisionScript : MonoBehaviour {
 
-	private GameObject fpsCharacter;
+	private GameObject	fpsCharacter;
+	private bool 		wasAlreadyFreeze = false;
 
 	// Use this for initialization
 	void Start () {
@@ -17,15 +18,14 @@ public class CollisionScript : MonoBehaviour {
 	}
 
 	void OnCollisionEnter(Collision collision) {
-		/*
-		if (collision.gameObject.transform.CompareTag("draggable")) {
-			collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.FreezeAll;
-			fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (collision);
-		}
-		*/
-		if(collision.gameObject.GetComponent<Rigidbody>() != null) {
-			collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.FreezeAll;
-			fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (collision);
+		if (collision.gameObject.GetComponent<Rigidbody> () != null) {
+			if (collision.gameObject.GetComponent<Rigidbody> ().constraints == RigidbodyConstraints.FreezeAll) {
+				wasAlreadyFreeze = true;
+			} else {
+				collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.FreezeAll;
+				fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (collision);
+				wasAlreadyFreeze = false;
+			}
 		}
 	}
 
@@ -34,15 +34,11 @@ public class CollisionScript : MonoBehaviour {
 	}
 
 	void OnCollisionExit(Collision collision) {
-		/*
-		if (collision.gameObject.transform.CompareTag("draggable")) {
-			collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.None;
+		if (collision.gameObject.GetComponent<Rigidbody> () != null) {
+			if (!wasAlreadyFreeze) {
+				collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.None;
+			}
 			fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (null);
-		}
-		*/
-		if(collision.gameObject.GetComponent<Rigidbody>() != null) {
-			collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.None;
-			fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (collision);
 		}
 	}
 
