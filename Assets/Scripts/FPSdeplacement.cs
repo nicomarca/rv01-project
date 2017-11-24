@@ -9,15 +9,19 @@ public class FPSdeplacement : MonoBehaviour {
 	public float tSpeed;
 	public float rSpeed;
 
+	private float maxSpeed;
+
 	private bool vr = false;
 
 	// Use this for initialization
 	void Start () {
-
+		maxSpeed = tSpeed; //même si on grandit beaucoup, on ne veut pas pouvoir aller plus vite que la taille initiale
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		if (tSpeed > maxSpeed)
+			tSpeed = maxSpeed;
 
 		if (vr) {
 			float mouvmentHorizontal = Input.GetAxis ("Horizontal");

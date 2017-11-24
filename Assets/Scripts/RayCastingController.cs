@@ -81,7 +81,7 @@ public class RayCastingController : MonoBehaviour {
 				transform.position = new Vector3(transform.position.x, transform.position.y * ratioNewPlayerSize, transform.position.z);
 				transform.localScale *= ratioNewPlayerSize;
 				Vector3 comparatorObjectPosition = mirrorManager.GetComponent<MirrorManagerScript> ().comparatorObject.transform.position;
-				//transform.position = new Vector3(comparatorObjectPosition.x, skin.transform.lossyScale.y/2, comparatorObjectPosition.z + skin.transform.lossyScale.z/1.5f);
+				GetComponent<FPSdeplacement> ().tSpeed *= ratioNewPlayerSize;
 			}
 		}
 		/*** L'UTILISATEUR RECLIQUE (LACHE L'OBJET) ***/
@@ -165,7 +165,7 @@ public class RayCastingController : MonoBehaviour {
 
 				// les autres cas non identifiés (dans le doute on offset vers nous)
 				else {
-					Debug.Log ("Dans le 2eme cas mystère");
+  					Debug.Log ("Dans le 2eme cas mystère");
 					moveObjectAgainst (ray, attachedObject.transform.position, new Axis(false, false, true));
 				}
 
