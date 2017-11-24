@@ -15,6 +15,18 @@ public class RayCastingController : MonoBehaviour {
 	private Collision	attachedObjectCollision;	// Collision of the attachedObject
 	private Vector3		oldPlayerPos;				// player position before update
 
+	private struct Axis {
+		public bool x;
+		public bool y;
+		public bool z;
+
+		public Axis(bool p1, bool p2, bool p3){
+			x = p1;
+			y = p2;
+			z = p3;
+		}
+	}
+
 	public Material 	lazerOff, lazerOK;			// Lazer colors
 	public Material		lazerOn, lazerMirror; 		// Lazer colors
 	public GameObject 	lazer;						// Lazer of the wand 
@@ -60,8 +72,7 @@ public class RayCastingController : MonoBehaviour {
 				attachedObject.isKinematic = true;
 				distanceToObj = objectFirstPlane.distance;
 				attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-
-				attachedObject.GetComponent<CollisionScript> ().enabled = true;
+				attachedObject.gameObject.AddComponent<CollisionScript>();
 				// setAttachedObjectOrientation ();
 			} 
 
@@ -70,7 +81,7 @@ public class RayCastingController : MonoBehaviour {
 				transform.position = new Vector3(transform.position.x, transform.position.y * ratioNewPlayerSize, transform.position.z);
 				transform.localScale *= ratioNewPlayerSize;
 				Vector3 comparatorObjectPosition = mirrorManager.GetComponent<MirrorManagerScript> ().comparatorObject.transform.position;
-				//transform.position = new Vector3(comparatorObjectPosition.x, skin.transform.lossyScale.y/2, comparatorObjectPosition.z + skin.transform.lossyScale.z/1.5f);
+				GetComponent<FPSdeplacement> ().tSpeed *= ratioNewPlayerSize;
 			}
 		}
 		/*** L'UTILISATEUR RECLIQUE (LACHE L'OBJET) ***/
@@ -80,7 +91,7 @@ public class RayCastingController : MonoBehaviour {
 			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 			attachedObject.isKinematic = false;
 			attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
-			attachedObject.GetComponent<CollisionScript> ().enabled = false;
+			GameObject.Destroy(attachedObject.gameObject.GetComponent<CollisionScript>());
 			attachedObject = null;
 		}
 
@@ -106,23 +117,24 @@ public class RayCastingController : MonoBehaviour {
 					// 1er cas : le raycast passe par l'objet puis par le terrain
 					if (objectSecondPlane.transform.tag == "Terrain") {
 						Debug.Log ("Dans le 1er cas");
-						changePositionAndSizeOnGround (objectSecondPlane.point, objectSizeInitial.y);
+						moveObjectAgainst (ray, objectSecondPlane.point, new Axis(false, true, false));
 						//Debug.Log ("objectSecondPlane.point : " + objectSecondPlane.point);
 					}
 					// 2eme cas : le raycast passe par le terrain (mais pas par l'objet saisi)
 					else if (objectFirstPlane.transform.tag == "Terrain") {
 						Debug.Log ("Dans le 2eme cas");
-						changePositionAndSizeOnGround (objectFirstPlane.point, objectSizeInitial.y);
+						moveObjectAgainst (ray, objectFirstPlane.point, new Axis(false, true, false));
 					} 
 					// 3eme cas : le raycast passe par l'objet puis par un autre qui n'est pas le premier terrain
 					// typiquement : la tour
 					else if (hitInfo [0].transform.gameObject.GetInstanceID () == attachedObject.gameObject.GetInstanceID ()) {
 						if (hitInfo [1].transform.tag == "bordure") {
 							Debug.Log ("Dans le 3eme cas A");
-							moveObjectInTheSky (ray, attachedObject.transform.position);
-						} else {
-							Debug.Log ("Dans le 3eme cas B");
-							moveObjectAgainstOtherObject (ray, hitInfo [1].point);
+							moveObjectAgainst (ray, attachedObject.transform.position, new Axis (false, false, false));
+						} 
+						else {
+							Debug.Log ("Dans le 3eme cas C"); 
+							moveObjectAgainst (ray, hitInfo [1].point, new Axis(false, false, true));
 						}
 					}
 					// 4eme cas : un objet est entre nous et attachedObject
@@ -130,36 +142,42 @@ public class RayCastingController : MonoBehaviour {
 					         && hitInfo [1].transform.gameObject.GetInstanceID () == attachedObject.gameObject.GetInstanceID ()) {
 						//rebaseObjectInFirstPlane ();
 						Debug.Log ("Dans le 4eme cas");
-						changePositionAndSizeOnGround (objectFirstPlane.point, objectSizeInitial.y);
-					}
-					// juste un autre objet en premier plan
-						else {
-						moveObjectAgainstOtherObject (ray, hitInfo [0].point);
+						moveObjectAgainst (ray, objectFirstPlane.point, new Axis(false, false, false), false);
 					}
 
-					/*
-					} else {
-						moveObjectAgainstOtherObject (ray, hitInfo [1].point);
+					// les autres cas non identifiés (dans le doute on offset vers nous)
+					else {
+						Debug.Log ("Dans le 1er cas mystère");
+						moveObjectAgainst (ray, hitInfo [0].point, new Axis(false, false, true));
 					}
-					*/
 
 
 				}
+
+				// hitInfo.Length == 1
+
 				// 5eme cas : le raycast passe seulement par l'objet
 				// typiquement : on vise le ciel
 				else if (hitInfo[0].transform.gameObject.GetInstanceID() == attachedObject.gameObject.GetInstanceID()) {
 					Debug.Log("Dans le 5eme cas");
-					moveObjectInTheSky (ray, attachedObject.transform.position);
+					moveObjectAgainst (ray, attachedObject.transform.position, new Axis(false, false, false));
 				}
+
+				// les autres cas non identifiés (dans le doute on offset vers nous)
+				else {
+  					Debug.Log ("Dans le 2eme cas mystère");
+					moveObjectAgainst (ray, attachedObject.transform.position, new Axis(false, false, true));
+				}
+
 
 				lazer.GetComponent<Renderer> ().material = lazerOn;
 			} 
 			// 6eme cas : le raycast ne touche rien
 			// typiquement : on vise le ciel mais on perd le raycast sur l'objet
 			else {
+				Debug.Log("Dans le 6eme cas");
 				Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, attachedObject.transform.position);
-				attachedObject.transform.position = newPos;
-
+				moveObjectAgainst (ray, attachedObject.transform.position, new Axis(false, false, false));
 			}
 		} 
 		/*** L'UTILISATEUR BOUGE LA SOURIS SANS CLIQUER ***/
@@ -175,6 +193,59 @@ public class RayCastingController : MonoBehaviour {
 	}
 
 
+	/** moveObjectAgainst permet de plaquer un objet contre une autre surface tout en
+	 * décalant l'objet d'un offset horizontal/vertical/les deux
+	 **/
+	private void moveObjectAgainst (Ray ray, Vector3 referencePoint, Axis offsetAxis, bool teleport = false) {
+		float offsetX = 0;
+		float offsetY = 0;
+		float offsetZ = 0;
+
+		if (offsetAxis.x) {
+			offsetX = attachedObject.transform.lossyScale.x / 2;
+		} if (offsetAxis.y) {
+			offsetY = attachedObject.transform.lossyScale.y / 2;
+		} if (offsetAxis.z) {
+			offsetZ = attachedObject.transform.lossyScale.z / 2;
+		}
+
+		//Vector3 offset = new Vector3 (offsetX, offsetY, offsetZ);
+		//Vector3 newPos = referencePoint + offset; // IMPOSSIBLE CAR OFFSET DANS REPERE GLOBAL (PAS PAR RAPPORT AU JOUEUR)
+
+		Vector3 offset = new Vector3 (0, offsetY, 0);
+		Vector3 newPos = ray.origin + ray.direction * (Vector3.Distance (ray.origin, referencePoint) - offsetZ) + offset;
+
+		// Cas particulier: l'endroit visé est le bas d'un objet
+		// Typiquement: le pied de la tour.
+		if (newPos.y < attachedObject.transform.lossyScale.y / 2f) {
+			newPos.y = attachedObject.transform.lossyScale.y / 2f;
+		}
+
+		changePositionAndSize (newPos, teleport);
+	}
+
+	private void changePositionAndSize (Vector3 newPosition, bool teleport) {
+		Vector3 attachedObjectGroundPosition = attachedObject.position;
+		attachedObjectGroundPosition.y = newPosition.y;
+		float GroundDistanceFirstPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), attachedObjectGroundPosition);
+		float GroundDistanceSecondPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), newPosition);
+
+		float sizeY = attachedObject.transform.lossyScale.y;
+		newSizeY = sizeY * (GroundDistanceSecondPlane / GroundDistanceFirstPlane);
+		ratio = newSizeY / sizeY;
+
+		setAttachedObjectOrientation ();
+
+		if (teleport) {
+			attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, newPosition, 100.0f);
+		} else {
+			attachedObject.transform.position = newPosition;
+		}
+
+		attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
+	}
+
+	/*
 	// If referenced object is the ground
 	private void changePositionAndSizeOnGround(Vector3 referenceObjectPoint, float sizeY) {
 		if (attachedObjectCollision != null) {
@@ -215,20 +286,30 @@ public class RayCastingController : MonoBehaviour {
 
 	// Move the object against another object (tower for exemple)
 	private void moveObjectAgainstOtherObject (Ray ray, Vector3 referencePoint) {
-		float diffZ = attachedObject.transform.lossyScale.z / 2;
+		float diffZ = attachedObject.transform.lossyScale.z / 2 ;
 		Vector3 newPos = ray.origin + ray.direction * (Vector3.Distance (ray.origin, referencePoint) - diffZ);
 		if (newPos.y < attachedObject.transform.lossyScale.y / 2f) {
 			newPos.y = attachedObject.transform.lossyScale.y / 2f;
 		}
-
-		attachedObject.transform.position = newPos;
-		setAttachedObjectOrientation ();
+		changePositionAndSizeOnObject (newPos);
+		//attachedObject.transform.position = newPos;
+		//setAttachedObjectOrientation ();
 	}
 
 	// If referenced object is an other object
-	private void changePositionAndSizeOnObject(Vector3 referecendPoint) {
-		attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, referecendPoint, 100.0f);
-	}
+	private void changePositionAndSizeOnObject(Vector3 referencedPoint) {
+		Vector3 attachedObjectGroundPosition = attachedObject.position;
+		attachedObjectGroundPosition.y = referencedPoint.y;
+		float GroundDistanceFirstPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), attachedObjectGroundPosition);
+		float GroundDistanceSecondPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), referencedPoint);
+
+		float sizeY = attachedObject.transform.lossyScale.y;
+		newSizeY = sizeY * (GroundDistanceSecondPlane / GroundDistanceFirstPlane);
+		ratio = newSizeY / sizeY;
+
+		attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, referencedPoint, 100.0f);
+		attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
+	}*/
 
 	private void setAttachedObjectOrientation() {
 		var rotationVector = attachedObject.transform.rotation.eulerAngles;
