@@ -36,3 +36,6 @@ sysinfo.txt
 *.lava.meta
 
 Assets/shader/Outline_Diffuse\.shader\.meta
+
+Assets/.DS_Store
+.DS_Store
