@@ -32,3 +32,7 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+
+*.lava.meta
+
+Assets/shader/Outline_Diffuse\.shader\.meta

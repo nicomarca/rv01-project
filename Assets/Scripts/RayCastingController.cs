@@ -42,7 +42,6 @@ public class RayCastingController : MonoBehaviour {
 		oldPlayerPos = transform.position;
 	}
 
-
 	void Update () {
 		RaycastHit[] hitInfo;
 		RaycastHit firstHit;
@@ -73,6 +72,7 @@ public class RayCastingController : MonoBehaviour {
 				distanceToObj = objectFirstPlane.distance;
 				attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 				attachedObject.gameObject.AddComponent<CollisionScript>();
+				attachedObject.GetComponent<Renderer>().material.shader = Shader.Find("Self-Illumin/Outlined Diffuse");
 				// setAttachedObjectOrientation ();
 			} 
 
@@ -92,6 +92,7 @@ public class RayCastingController : MonoBehaviour {
 			attachedObject.isKinematic = false;
 			attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
 			GameObject.Destroy(attachedObject.gameObject.GetComponent<CollisionScript>());
+			attachedObject.GetComponent<Renderer>().material.shader = Shader.Find("Standard");
 			attachedObject = null;
 		}
 
@@ -133,7 +134,7 @@ public class RayCastingController : MonoBehaviour {
 							moveObjectAgainst (ray, attachedObject.transform.position, new Axis (false, false, false));
 						} 
 						else {
-							Debug.Log ("Dans le 3eme cas C"); 
+							Debug.Log ("Dans le 3eme cas B"); 
 							moveObjectAgainst (ray, hitInfo [1].point, new Axis(false, false, true));
 						}
 					}
@@ -244,72 +245,6 @@ public class RayCastingController : MonoBehaviour {
 
 		attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 	}
-
-	/*
-	// If referenced object is the ground
-	private void changePositionAndSizeOnGround(Vector3 referenceObjectPoint, float sizeY) {
-		if (attachedObjectCollision != null) {
-			return;
-		}
-		// Calculate new size
-		Vector3 attachedObjectGroundPosition = attachedObject.position;
-		attachedObjectGroundPosition.y = referenceObjectPoint.y;
-		float GroundDistanceFirstPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), attachedObjectGroundPosition);
-		float GroundDistanceSecondPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), referenceObjectPoint);
-
-		newSizeY = sizeY * (GroundDistanceSecondPlane / GroundDistanceFirstPlane);
-		ratio = newSizeY / sizeY;
-
-		//DEBUG (uncomment what you need)
-		//Debug.Log("attachedObjectGroundPosition.y : " + attachedObjectGroundPositi   on.y);
-		//Debug.Log("referenceObjectPoint : " + referenceObjectPoint);
-		//Debug.Log("GroundDistanceFirstPlane : " + GroundDistanceFirstPlane);
-		//Debug.Log("GroundDistanceSecondPlane : " + GroundDistanceSecondPlane);
-		//Debug.Log ("newSizeY : " + newSizeY + " ; sizeY : " + sizeY);
-		//Debug.Log ("ratio : " + ratio);
-
-		// Rotation
-		setAttachedObjectOrientation();
-
-		// Translate
-		Vector3 verticalReplacement = new Vector3 (0, newSizeY / 2, 0);
-		attachedObject.transform.position = referenceObjectPoint + verticalReplacement;
-		attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
-	}
-
-	// Move the attached objetc in the sky without changing its size or distance
-	private void moveObjectInTheSky(Ray ray, Vector3 referencePoint) {
-		Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, referencePoint);
-		attachedObject.transform.position = newPos;
-		setAttachedObjectOrientationOnSky ();
-	}
-
-	// Move the object against another object (tower for exemple)
-	private void moveObjectAgainstOtherObject (Ray ray, Vector3 referencePoint) {
-		float diffZ = attachedObject.transform.lossyScale.z / 2 ;
-		Vector3 newPos = ray.origin + ray.direction * (Vector3.Distance (ray.origin, referencePoint) - diffZ);
-		if (newPos.y < attachedObject.transform.lossyScale.y / 2f) {
-			newPos.y = attachedObject.transform.lossyScale.y / 2f;
-		}
-		changePositionAndSizeOnObject (newPos);
-		//attachedObject.transform.position = newPos;
-		//setAttachedObjectOrientation ();
-	}
-
-	// If referenced object is an other object
-	private void changePositionAndSizeOnObject(Vector3 referencedPoint) {
-		Vector3 attachedObjectGroundPosition = attachedObject.position;
-		attachedObjectGroundPosition.y = referencedPoint.y;
-		float GroundDistanceFirstPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), attachedObjectGroundPosition);
-		float GroundDistanceSecondPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), referencedPoint);
-
-		float sizeY = attachedObject.transform.lossyScale.y;
-		newSizeY = sizeY * (GroundDistanceSecondPlane / GroundDistanceFirstPlane);
-		ratio = newSizeY / sizeY;
-
-		attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, referencedPoint, 100.0f);
-		attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
-	}*/
 
 	private void setAttachedObjectOrientation() {
 		var rotationVector = attachedObject.transform.rotation.eulerAngles;
