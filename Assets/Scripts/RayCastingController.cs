@@ -5,7 +5,7 @@ using UnityEngine.VR;
 
 public class RayCastingController : MonoBehaviour {
 	
-	private const int 	RAYCASTLENGTH = 200;		// Length of the ray
+	private const int 	RAYCASTLENGTH = 1000;		// Length of the ray
 
 	private float 		distanceToObj;				// Distance entre le personnage et l'objet saisi
 	private float 		ratio;						// Ratio between the distances
@@ -14,6 +14,8 @@ public class RayCastingController : MonoBehaviour {
 	private Vector3 	objectSizeInitial;  		// Initial size of the object
 	private Collision	attachedObjectCollision;	// Collision of the attachedObject
 	private Vector3		oldPlayerPos;				// player position before update
+	private Vector3		desiredRotationVector;		// rotation of the attached object so it faces the camera
+	private bool 		rotationIsFinished;
 
 	private struct Axis {
 		public bool x;
@@ -31,7 +33,7 @@ public class RayCastingController : MonoBehaviour {
 	public Material		lazerOn, lazerMirror; 		// Lazer colors
 	public GameObject 	lazer;						// Lazer of the wand 
 	public GameObject	wand;						// wand in the right hand of the user
-	public GameObject	skin;						// skin of the user 
+	//public GameObject	skin;						// skin of the user 
 	public GameObject	mirrorManager;				// mirror manager to change player size
 
 
@@ -73,6 +75,8 @@ public class RayCastingController : MonoBehaviour {
 				distanceToObj = objectFirstPlane.distance;
 				attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 				attachedObject.gameObject.AddComponent<CollisionScript>();
+				rotationIsFinished = true;
+
 				// setAttachedObjectOrientation ();
 			} 
 
@@ -90,7 +94,10 @@ public class RayCastingController : MonoBehaviour {
 			//attachedObject.transform.position += vect;
 			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 			attachedObject.isKinematic = false;
-			attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+			rotationIsFinished = true;
+			if (attachedObject.GetComponent<MeshRenderer> ()) {
+				attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+			}
 			GameObject.Destroy(attachedObject.gameObject.GetComponent<CollisionScript>());
 			attachedObject = null;
 		}
@@ -312,16 +319,30 @@ public class RayCastingController : MonoBehaviour {
 	}*/
 
 	private void setAttachedObjectOrientation() {
-		var rotationVector = attachedObject.transform.rotation.eulerAngles;
-		rotationVector.x = 0;
-		rotationVector.y = wand.transform.rotation.eulerAngles.y;
-		rotationVector.z = 0;
-		attachedObject.transform.rotation = Quaternion.Euler(rotationVector);
+
+		Vector3 attachedObjectRotation = attachedObject.transform.rotation.eulerAngles;
+		attachedObjectRotation.x = 0;
+		attachedObjectRotation.z = 0;
+
+		if (rotationIsFinished) {
+			desiredRotationVector = wand.transform.rotation.eulerAngles;
+			desiredRotationVector.x = 0;
+			desiredRotationVector.z = 0;
+			attachedObject.transform.rotation = Quaternion.Lerp ( attachedObject.transform.rotation, Quaternion.Euler (desiredRotationVector), 0.1f);
+			rotationIsFinished = false;
+		} else {
+			attachedObject.transform.rotation = Quaternion.Lerp (attachedObject.transform.rotation, Quaternion.Euler (desiredRotationVector), 0.1f);
+		}
+
+
+		if (Mathf.Abs(desiredRotationVector.y - attachedObjectRotation.y) < 1f) {
+			rotationIsFinished = true;
+		}
 	}
 
 	private void setAttachedObjectOrientationOnSky() {
 		var rotationVector = wand.transform.rotation.eulerAngles;
-		attachedObject.transform.rotation = Quaternion.Euler(rotationVector);
+		//attachedObject.transform.rotation = Quaternion.Euler(rotationVector);
 	}
 
 

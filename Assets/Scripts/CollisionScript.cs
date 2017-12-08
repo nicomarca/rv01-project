@@ -14,7 +14,7 @@ public class CollisionScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		fpsCharacter = GameObject.Find ("Player");
+		fpsCharacter = GameObject.Find ("NewPlayer");
 	}
 	
 	// Update is called once per frame
