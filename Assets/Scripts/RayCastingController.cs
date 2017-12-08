@@ -238,9 +238,9 @@ public class RayCastingController : MonoBehaviour {
 		setAttachedObjectOrientation ();
 
 		if (teleport) {
-			attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, newPosition, 100.0f);
-		} else {
 			attachedObject.transform.position = newPosition;
+		} else {
+			attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, newPosition, 100.0f);
 		}
 
 		attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
