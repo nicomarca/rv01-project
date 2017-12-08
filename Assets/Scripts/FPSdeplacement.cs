@@ -11,7 +11,7 @@ public class FPSdeplacement : MonoBehaviour {
 
 	private float maxSpeed;
 
-	private bool vr = false;
+	public bool VR;
 
 	// Use this for initialization
 	void Start () {
@@ -23,7 +23,7 @@ public class FPSdeplacement : MonoBehaviour {
 		if (tSpeed > maxSpeed)
 			tSpeed = maxSpeed;
 
-		if (vr) {
+		if (VR) {
 			float mouvmentHorizontal = Input.GetAxis ("Horizontal");
 			float mouvmentVertical = Input.GetAxis ("Vertical");
 			Vector3 mouvment = new Vector3 (mouvmentHorizontal, 0, mouvmentVertical);
@@ -31,19 +31,20 @@ public class FPSdeplacement : MonoBehaviour {
 		} else {
 			if(Input.GetKey("z"))
 			{
-				this.transform.Translate(Vector3.forward * tSpeed);
+				transform.
+				transform.Translate(Vector3.forward * tSpeed);
 			}
 			if(Input.GetKey("s"))
 			{
-				this.transform.Translate(Vector3.back * tSpeed);
+				transform.Translate(Vector3.back * tSpeed);
 			}
 			if(Input.GetKey("q"))
 			{
-				this.transform.Translate(Vector3.left * tSpeed);
+				transform.Translate(Vector3.left * tSpeed);
 			}
 			if(Input.GetKey("d"))
 			{
-				this.transform.Translate(Vector3.right * tSpeed);
+				transform.Translate(Vector3.right * tSpeed);
 			}
 
 			if (Input.GetKey("left")) {
