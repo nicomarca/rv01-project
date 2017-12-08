@@ -16,6 +16,7 @@ public class RayCastingController : MonoBehaviour {
 	private Vector3		oldPlayerPos;				// player position before update
 	private Vector3		desiredRotationVector;		// rotation of the attached object so it faces the camera
 	private bool 		rotationIsFinished;
+	private bool 		firstRotation;
 
 	private struct Axis {
 		public bool x;
@@ -76,6 +77,7 @@ public class RayCastingController : MonoBehaviour {
 				attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 				attachedObject.gameObject.AddComponent<CollisionScript>();
 				rotationIsFinished = true;
+				firstRotation = true;
 
 				// setAttachedObjectOrientation ();
 			} 
@@ -95,6 +97,7 @@ public class RayCastingController : MonoBehaviour {
 			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 			attachedObject.isKinematic = false;
 			rotationIsFinished = true;
+			firstRotation = true;
 			if (attachedObject.GetComponent<MeshRenderer> ()) {
 				attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
 			}
@@ -320,23 +323,32 @@ public class RayCastingController : MonoBehaviour {
 
 	private void setAttachedObjectOrientation() {
 
-		Vector3 attachedObjectRotation = attachedObject.transform.rotation.eulerAngles;
-		attachedObjectRotation.x = 0;
-		attachedObjectRotation.z = 0;
+		if (firstRotation) {
+			Vector3 attachedObjectRotation = attachedObject.transform.rotation.eulerAngles;
+			attachedObjectRotation.x = 0;
+			attachedObjectRotation.z = 0;
 
-		if (rotationIsFinished) {
-			desiredRotationVector = wand.transform.rotation.eulerAngles;
-			desiredRotationVector.x = 0;
-			desiredRotationVector.z = 0;
-			attachedObject.transform.rotation = Quaternion.Lerp ( attachedObject.transform.rotation, Quaternion.Euler (desiredRotationVector), 0.1f);
-			rotationIsFinished = false;
+			if (rotationIsFinished) {
+				desiredRotationVector = wand.transform.rotation.eulerAngles;
+				desiredRotationVector.x = 0;
+				desiredRotationVector.z = 0;
+				attachedObject.transform.rotation = Quaternion.Lerp (attachedObject.transform.rotation, Quaternion.Euler (desiredRotationVector), 0.1f);
+				rotationIsFinished = false;
+			} else {
+				attachedObject.transform.rotation = Quaternion.Lerp (attachedObject.transform.rotation, Quaternion.Euler (desiredRotationVector), 0.1f);
+			}
+
+
+			if (Mathf.Abs (desiredRotationVector.y - attachedObjectRotation.y) < 1f) {
+				rotationIsFinished = true;
+				firstRotation = false;
+			}
 		} else {
-			attachedObject.transform.rotation = Quaternion.Lerp (attachedObject.transform.rotation, Quaternion.Euler (desiredRotationVector), 0.1f);
-		}
-
-
-		if (Mathf.Abs(desiredRotationVector.y - attachedObjectRotation.y) < 1f) {
-			rotationIsFinished = true;
+			Vector3 newRot = wand.transform.rotation.eulerAngles;
+			newRot.x = attachedObject.transform.rotation.eulerAngles.x;
+			newRot.z = attachedObject.transform.rotation.eulerAngles.z;
+			//attachedObject.transform.rotation.eulerAngles.Set(newRot.x, newRot.y, newRot.z);
+			attachedObject.transform.rotation = Quaternion.Euler(newRot);
 		}
 	}
 
