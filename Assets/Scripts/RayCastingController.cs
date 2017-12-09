@@ -73,9 +73,15 @@ public class RayCastingController : MonoBehaviour {
 				attachedObject = objectFirstPlane.rigidbody;
 				attachedObject.isKinematic = true;
 				distanceToObj = objectFirstPlane.distance;
-				attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 				attachedObject.gameObject.AddComponent<CollisionScript>();
-				attachedObject.GetComponent<Renderer>().material.shader = Shader.Find("Self-Illumin/Outlined Diffuse");
+
+				if (attachedObject.GetComponent<MeshRenderer> ()) {
+					attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+				}
+				if (attachedObject.GetComponent<Renderer> ()) {
+					attachedObject.GetComponent<Renderer> ().material.shader = Shader.Find ("Self-Illumin/Outlined Diffuse");
+				}
+
 				rotationIsFinished = true;
 				firstRotation = true;
 
@@ -92,56 +98,53 @@ public class RayCastingController : MonoBehaviour {
 		}
 		/*** L'UTILISATEUR RECLIQUE (LACHE L'OBJET) ***/
 		else if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject != null) {
-			//Vector3 vect = new Vector3 (0, newSizeY / 4, 0);
-			//attachedObject.transform.position += vect;
 			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 			attachedObject.isKinematic = false;
 			rotationIsFinished = true;
 			firstRotation = true;
+			GameObject.Destroy(attachedObject.gameObject.GetComponent<CollisionScript>());
+
 			if (attachedObject.GetComponent<MeshRenderer> ()) {
 				attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
 			}
-			GameObject.Destroy(attachedObject.gameObject.GetComponent<CollisionScript>());
-			attachedObject.GetComponent<Renderer>().material.shader = Shader.Find("Standard");
+
+			if (attachedObject.GetComponent<Renderer> ()) {
+				attachedObject.GetComponent<Renderer> ().material.shader = Shader.Find ("Standard");
+			}
+
+
+			attachedObject.GetComponent<Rigidbody> ().velocity = Vector3.zero;
+				
 			attachedObject = null;
 		}
 
 		/*** L'UTILISATEUR A L'OBJET DANS LA MAIN ***/
 		if (attachedObject != null) {
-
+			//V1
 			hitInfo = Physics.RaycastAll (ray, (float)RAYCASTLENGTH);
 
 			if (hitInfo.Length > 0) {
 				hitInfo = orderHitInfo (hitInfo); // order hitInfo by distance
-
-				objectFirstPlane = hitInfo [0]; // normalement == attachedObject
 				objectSizeInitial = attachedObject.transform.lossyScale;
 
 				if (hitInfo.Length >= 2) {
-					RaycastHit objectSecondPlane;
-					objectSecondPlane = hitInfo [1];
-
-					/*
-					if (attachedObjectCollision == null) {
-					*/
-
+					
 					// 1er cas : le raycast passe par l'objet puis par le terrain
-					if (objectSecondPlane.transform.tag == "Terrain") {
+					if (hitInfo[1].transform.tag == "Terrain") {
 						Debug.Log ("Dans le 1er cas");
-						moveObjectAgainst (ray, objectSecondPlane.point, new Axis(false, true, false));
-						//Debug.Log ("objectSecondPlane.point : " + objectSecondPlane.point);
+						moveObjectAgainst (ray, hitInfo[1].point, new Axis(false, false, false));
 					}
 					// 2eme cas : le raycast passe par le terrain (mais pas par l'objet saisi)
-					else if (objectFirstPlane.transform.tag == "Terrain") {
+					else if (hitInfo[0].transform.tag == "Terrain") {
 						Debug.Log ("Dans le 2eme cas");
-						moveObjectAgainst (ray, objectFirstPlane.point, new Axis(false, true, false));
+						moveObjectAgainst (ray, hitInfo[0].point, new Axis(false, false, false));
 					} 
 					// 3eme cas : le raycast passe par l'objet puis par un autre qui n'est pas le premier terrain
 					// typiquement : la tour
 					else if (hitInfo [0].transform.gameObject.GetInstanceID () == attachedObject.gameObject.GetInstanceID ()) {
 						if (hitInfo [1].transform.tag == "bordure") {
 							Debug.Log ("Dans le 3eme cas A");
-							moveObjectAgainst (ray, attachedObject.transform.position, new Axis (false, false, false));
+							moveObjectAgainst (ray, hitInfo [0].transform.gameObject.transform.position, new Axis (false, false, false));
 						} 
 						else {
 							Debug.Log ("Dans le 3eme cas B"); 
@@ -153,7 +156,7 @@ public class RayCastingController : MonoBehaviour {
 					         && hitInfo [1].transform.gameObject.GetInstanceID () == attachedObject.gameObject.GetInstanceID ()) {
 						//rebaseObjectInFirstPlane ();
 						Debug.Log ("Dans le 4eme cas");
-						moveObjectAgainst (ray, objectFirstPlane.point, new Axis(false, false, false), false);
+						moveObjectAgainst (ray, hitInfo[0].point, new Axis(false, false, false), false);
 					}
 
 					// les autres cas non identifiés (dans le doute on offset vers nous)
@@ -164,8 +167,6 @@ public class RayCastingController : MonoBehaviour {
 
 
 				}
-
-				// hitInfo.Length == 1
 
 				// 5eme cas : le raycast passe seulement par l'objet
 				// typiquement : on vise le ciel
@@ -179,7 +180,7 @@ public class RayCastingController : MonoBehaviour {
   					Debug.Log ("Dans le 2eme cas mystère");
 					moveObjectAgainst (ray, attachedObject.transform.position, new Axis(false, false, true));
 				}
-
+		
 
 				lazer.GetComponent<Renderer> ().material = lazerOn;
 			} 
@@ -191,6 +192,7 @@ public class RayCastingController : MonoBehaviour {
 				moveObjectAgainst (ray, attachedObject.transform.position, new Axis(false, false, false));
 			}
 		} 
+
 		/*** L'UTILISATEUR BOUGE LA SOURIS SANS CLIQUER ***/
 		else {
 			if (mirrorCasted) {
@@ -219,9 +221,7 @@ public class RayCastingController : MonoBehaviour {
 		} if (offsetAxis.z) {
 			offsetZ = attachedObject.transform.lossyScale.z / 2;
 		}
-
-		//Vector3 offset = new Vector3 (offsetX, offsetY, offsetZ);
-		//Vector3 newPos = referencePoint + offset; // IMPOSSIBLE CAR OFFSET DANS REPERE GLOBAL (PAS PAR RAPPORT AU JOUEUR)
+		
 
 		Vector3 offset = new Vector3 (0, offsetY, 0);
 		Vector3 newPos = ray.origin + ray.direction * (Vector3.Distance (ray.origin, referencePoint) - offsetZ) + offset;
@@ -250,10 +250,14 @@ public class RayCastingController : MonoBehaviour {
 		if (teleport) {
 			attachedObject.transform.position = newPosition;
 		} else {
-			attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, newPosition, 100.0f);
+			attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, newPosition, 1000.0f);
 		}
 
-		attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
+		if (attachedObject.transform.position == newPosition) {
+			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
+		} else {
+			Debug.Log ("Position impossible");
+		}
 	}
 
 	private void setAttachedObjectOrientation() {
@@ -282,7 +286,6 @@ public class RayCastingController : MonoBehaviour {
 			Vector3 newRot = wand.transform.rotation.eulerAngles;
 			newRot.x = attachedObject.transform.rotation.eulerAngles.x;
 			newRot.z = attachedObject.transform.rotation.eulerAngles.z;
-			//attachedObject.transform.rotation.eulerAngles.Set(newRot.x, newRot.y, newRot.z);
 			attachedObject.transform.rotation = Quaternion.Euler(newRot);
 		}
 	}
@@ -325,7 +328,6 @@ public class RayCastingController : MonoBehaviour {
 		} else {
 			if (attachedObject != null) {
 				attachedObject.MovePosition(attachedObject.transform.position + transform.position - oldPlayerPos);
-				//attachedObject.transform.position += transform.position - oldPlayerPos;
 			}
 			oldPlayerPos = transform.position;
 			return true;
@@ -346,6 +348,18 @@ public class RayCastingController : MonoBehaviour {
 		} else {
 			return null;
 		}
+	}
+
+	public void preventMovingAfter(Rigidbody rb, float x){
+		StartCoroutine (preventMovingCoroutine(rb, x));
+	}
+
+	private IEnumerator preventMovingCoroutine(Rigidbody rb, float x){
+		Debug.Log ("J'attends");
+		yield return new WaitForSeconds (x);
+		Debug.Log ("J'ai attendu");
+		rb.velocity = Vector3.zero;
+		rb.angularVelocity = Vector3.zero;
 	}
 }
 
