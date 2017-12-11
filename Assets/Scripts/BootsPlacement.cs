@@ -9,19 +9,17 @@ using UnityEngine;
 public class BootsPlacement : MonoBehaviour {
 
 	public GameObject player;
-	private float playerHeight;
 
 	void Start () {
-		playerHeight = player.transform.position.y;
+
 	}
 	
 	void Update () {
 		float x = Camera.main.transform.position.x;
 		float z = Camera.main.transform.position.z;
 
-		float y = player.transform.position.y - playerHeight;
+		float y = player.GetComponent<CapsuleCollider>().bounds.min.y;
 
 		transform.position = new Vector3 (x, y, z);
-
 	}
 }
