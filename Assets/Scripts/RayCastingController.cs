@@ -42,6 +42,7 @@ public class RayCastingController : MonoBehaviour {
 		distanceToObj = -1;
 		attachedObjectCollision = null;
 		lazer.GetComponent<Renderer> ().material = lazerOff;
+		lazer.GetComponent<AudioSource> ().enabled = false;
 		oldPlayerPos = transform.position;
 	}
 
@@ -84,8 +85,6 @@ public class RayCastingController : MonoBehaviour {
 
 				rotationIsFinished = true;
 				firstRotation = true;
-
-				// setAttachedObjectOrientation ();
 			} 
 
 			else if (mirrorCasted) {
@@ -116,6 +115,9 @@ public class RayCastingController : MonoBehaviour {
 			attachedObject.GetComponent<Rigidbody> ().velocity = Vector3.zero;
 				
 			attachedObject = null;
+
+			lazer.transform.GetChild (0).gameObject.SetActive (false);
+			lazer.GetComponent<AudioSource> ().enabled = false;
 		}
 
 		/*** L'UTILISATEUR A L'OBJET DANS LA MAIN ***/
@@ -183,6 +185,8 @@ public class RayCastingController : MonoBehaviour {
 		
 
 				lazer.GetComponent<Renderer> ().material = lazerOn;
+				lazer.transform.GetChild (0).gameObject.SetActive (true);
+				lazer.GetComponent<AudioSource> ().enabled = true;
 			} 
 			// 6eme cas : le raycast ne touche rien
 			// typiquement : on vise le ciel mais on perd le raycast sur l'objet

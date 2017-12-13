@@ -9,6 +9,8 @@ TagManager:
   - Terrain
   - mirror
   - bordure
+  - FxTemporaire
+  - projectile
   layers:
   - Default
   - TransparentFX
@@ -18,7 +20,7 @@ TagManager:
   - UI
   - 
   - 
-  - 
+  - StereoRender_Ignore
   - 
   - 
   - 
