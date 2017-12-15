@@ -50,8 +50,9 @@ public class CollisionScript : MonoBehaviour {
 		}
 	}
 
-	/** Quand attachedObject est lâché en collision avec un autre objet, OnDestroy() est appelé
-	 * (et non OnCollisionExit). Il faut alors libérer tous les objets en collision
+	/** 
+	 * Quand attachedObject est lâché en collision avec un autre objet, OnDestroy() est appelé
+	 * (et non OnCollisionExit). Il faut alors libérer tous les objets en collision.
 	 **/
 	void OnDestroy(){
 		if (coll != null) {
@@ -60,6 +61,11 @@ public class CollisionScript : MonoBehaviour {
 					coll.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.None;
 				}
 				fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (null);
+
+				// Les objets subissent une force de collision après relachement, on attends donc un court instant qu'ils se placent
+				// puis on annule cette force 
+				fpsCharacter.GetComponent<RayCastingController> ().preventMovingAfter (coll.gameObject.GetComponent<Rigidbody> (), 0.1f);
+				fpsCharacter.GetComponent<RayCastingController> ().preventMovingAfter (GetComponent<Rigidbody>(), 0.1f);
 			}
 		}
 	}
