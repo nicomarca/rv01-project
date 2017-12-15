@@ -1,22 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.VR;
+using System.Collections.Generic;
 
 
 public class RayCastingController : MonoBehaviour {
 	
-	private const int 	RAYCASTLENGTH = 1000;		// Length of the ray
+	private const int 		RAYCASTLENGTH 				= 1000;								// Length of the ray
+	private const string 	SHADER_OUTLINED_DIFFUSE 	= "Self-Illumin/Outlined Diffuse";	// Shader Outlined diffuse
+	private const string 	SHADER_STANDARD 			= "Standard";						// Standard Shader
 
-	private float 		distanceToObj;				// Distance entre le personnage et l'objet saisi
-	private float 		ratio;						// Ratio between the distances
-	private float 		newSizeY;					// New vertical size of the moved object
-	private Rigidbody 	attachedObject;				// Objet saisi, null si aucun objet saisi
-	private Vector3 	objectSizeInitial;  		// Initial size of the object
-	private Collision	attachedObjectCollision;	// Collision of the attachedObject
-	private Vector3		oldPlayerPos;				// player position before update
-	private Vector3		desiredRotationVector;		// rotation of the attached object so it faces the camera
-	private bool 		rotationIsFinished;
-	private bool 		firstRotation;
+	private float 			distanceToObj;				// Distance entre le personnage et l'objet saisi
+	private float 			ratio;						// Ratio between the distances
+	private float 			newSizeY;					// New vertical size of the moved object
+	private Rigidbody 		attachedObject;				// Objet saisi, null si aucun objet saisi
+	private Vector3 		objectSizeInitial;  		// Initial size of the object
+	private Collision		attachedObjectCollision;	// Collision of the attachedObject
+	private Vector3			oldPlayerPos;				// player position before update
+	private Vector3			desiredRotationVector;		// rotation of the attached object so it faces the camera
+	private bool 			rotationIsFinished;
+	private bool 			firstRotation;
+	private List<Transform> listOfObjectToShader;
 
 	private struct Axis {
 		public bool x;
@@ -73,15 +77,14 @@ public class RayCastingController : MonoBehaviour {
 				attachedObject = objectFirstPlane.rigidbody;
 				attachedObject.isKinematic = true;
 				distanceToObj = objectFirstPlane.distance;
-				attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+				if (attachedObject.GetComponent<MeshRenderer> ()) {
+					attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+				}
+				applyShader (SHADER_OUTLINED_DIFFUSE);
 				attachedObject.gameObject.AddComponent<CollisionScript>();
-				attachedObject.GetComponent<Renderer>().material.shader = Shader.Find("Self-Illumin/Outlined Diffuse");
 				rotationIsFinished = true;
 				firstRotation = true;
-
-				// setAttachedObjectOrientation ();
-			} 
-
+			}
 			else if (mirrorCasted) {
 				float ratioNewPlayerSize = mirrorManager.GetComponent<MirrorManagerScript> ().newPlayerSize ();
 				transform.position = new Vector3(transform.position.x, transform.position.y * ratioNewPlayerSize, transform.position.z);
@@ -101,8 +104,8 @@ public class RayCastingController : MonoBehaviour {
 			if (attachedObject.GetComponent<MeshRenderer> ()) {
 				attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
 			}
+			applyShader (SHADER_STANDARD);
 			GameObject.Destroy(attachedObject.gameObject.GetComponent<CollisionScript>());
-			attachedObject.GetComponent<Renderer>().material.shader = Shader.Find("Standard");
 			attachedObject = null;
 		}
 
@@ -257,7 +260,6 @@ public class RayCastingController : MonoBehaviour {
 	}
 
 	private void setAttachedObjectOrientation() {
-
 		if (firstRotation) {
 			Vector3 attachedObjectRotation = attachedObject.transform.rotation.eulerAngles;
 			attachedObjectRotation.x = 0;
@@ -273,16 +275,14 @@ public class RayCastingController : MonoBehaviour {
 				attachedObject.transform.rotation = Quaternion.Lerp (attachedObject.transform.rotation, Quaternion.Euler (desiredRotationVector), 0.1f);
 			}
 
-
 			if (Mathf.Abs (desiredRotationVector.y - attachedObjectRotation.y) < 1f) {
 				rotationIsFinished = true;
 				firstRotation = false;
 			}
 		} else {
 			Vector3 newRot = wand.transform.rotation.eulerAngles;
-			newRot.x = attachedObject.transform.rotation.eulerAngles.x;
-			newRot.z = attachedObject.transform.rotation.eulerAngles.z;
-			//attachedObject.transform.rotation.eulerAngles.Set(newRot.x, newRot.y, newRot.z);
+			newRot.x = 0;
+			newRot.z = 0;
 			attachedObject.transform.rotation = Quaternion.Euler(newRot);
 		}
 	}
@@ -292,6 +292,32 @@ public class RayCastingController : MonoBehaviour {
 		//attachedObject.transform.rotation = Quaternion.Euler(rotationVector);
 	}
 
+	private void applyShader (string shaderToApply) {
+		listOfObjectToShader = new List<Transform> ();
+
+		if (attachedObject.GetComponent<Renderer> ()) {
+			listOfObjectToShader.Add (attachedObject.transform);
+		}
+		for (int i = 0; i < attachedObject.transform.childCount; i++) {
+			if (attachedObject.transform.GetChild (i).GetComponent<Renderer> ()) {
+				listOfObjectToShader.Add (attachedObject.transform.GetChild (i));
+			}
+			getAllObjectsToShader (attachedObject.transform.GetChild (i));
+		}
+		foreach (Transform transform in listOfObjectToShader) {
+			transform.GetComponent<Renderer> ().material.shader = Shader.Find (shaderToApply);
+		}
+		//attachedObject.GetComponent<Renderer> ().material.shader = Shader.Find (shaderToApply);
+	}
+
+	private void getAllObjectsToShader(Transform child) {
+		for (int i = 0; i < child.childCount; i++) {
+			if (child.GetChild (i).GetComponent<Renderer> ()) {
+				listOfObjectToShader.Add (child.GetChild (i));
+			}
+			getAllObjectsToShader (child.GetChild (i));
+		}
+	}
 
 	// Order hitInfo by distance
 	private RaycastHit[] orderHitInfo(RaycastHit[] hitInfo) {
