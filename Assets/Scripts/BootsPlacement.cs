@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/** This script manages the boots placement. The boots have to stay under the camera (which is free from the empty game object player in VR),
+/**
+ * This script manages the boots placement. The boots have to stay under the camera
+ * (which is free from the empty game object player in VR),
  * same X and Y as the hat but at the same time have to stay on the floor.
- **/
+**/
 
 public class BootsPlacement : MonoBehaviour {
 
@@ -17,7 +19,6 @@ public class BootsPlacement : MonoBehaviour {
 	void Update () {
 		float x = Camera.main.transform.position.x;
 		float z = Camera.main.transform.position.z;
-
 		float y = player.GetComponent<CapsuleCollider>().bounds.min.y;
 
 		transform.position = new Vector3 (x, y, z);

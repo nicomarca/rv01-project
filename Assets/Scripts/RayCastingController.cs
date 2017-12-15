@@ -10,17 +10,25 @@ public class RayCastingController : MonoBehaviour {
 	private const string 	SHADER_OUTLINED_DIFFUSE 	= "Self-Illumin/Outlined Diffuse";	// Shader Outlined diffuse
 	private const string 	SHADER_STANDARD 			= "Standard";						// Standard Shader
 
-	private float 			distanceToObj;				// Distance entre le personnage et l'objet saisi
+	private float 			distanceToObj;				// Distance between player and seased object
 	private float 			ratio;						// Ratio between the distances
 	private float 			newSizeY;					// New vertical size of the moved object
-	private Rigidbody 		attachedObject;				// Objet saisi, null si aucun objet saisi
-	private Vector3 		objectSizeInitial;  		// Initial size of the object
+	private bool 			rotationIsFinished;			// Is the first rotation finished
+	private bool 			firstRotation;				// Is the first rotation (SLerp until done)
+	private string 			previousShader;				// Previous used shader
+	private Rigidbody 		attachedObject;				// Seased object, null if none
 	private Collision		attachedObjectCollision;	// Collision of the attachedObject
-	private Vector3			oldPlayerPos;				// player position before update
-	private Vector3			desiredRotationVector;		// rotation of the attached object so it faces the camera
-	private bool 			rotationIsFinished;
-	private bool 			firstRotation;
-	private List<Transform> listOfObjectToShader;
+	private Vector3 		objectSizeInitial;  		// Initial size of the object
+	private Vector3			oldPlayerPos;				// Player position before update
+	private Vector3			desiredRotationVector;		// Rotation of the attached object so it faces the camera
+	private List<Transform> listOfObjectToShader;		// List of sub-objects to shader for a given object
+	private List<Transform> listOfObjectToShadow;		// List of sub-objects to shadow for a given object
+
+	public Material 	lazerOff, lazerOK;				// Lazer colors
+	public Material		lazerOn,  lazerMirror;	 		// Lazer colors
+	public GameObject 	lazer;							// Lazer of the wand 
+	public GameObject	wand;							// wand in the right hand of the user
+	public GameObject	mirrorManager;					// mirror manager to change player size
 
 	private struct Axis {
 		public bool x;
@@ -34,13 +42,6 @@ public class RayCastingController : MonoBehaviour {
 		}
 	}
 
-	public Material 	lazerOff, lazerOK;			// Lazer colors
-	public Material		lazerOn, lazerMirror; 		// Lazer colors
-	public GameObject 	lazer;						// Lazer of the wand 
-	public GameObject	wand;						// wand in the right hand of the user
-	//public GameObject	skin;						// skin of the user 
-	public GameObject	mirrorManager;				// mirror manager to change player size
-
 
 	void Start () {
 		distanceToObj = -1;
@@ -48,6 +49,7 @@ public class RayCastingController : MonoBehaviour {
 		lazer.GetComponent<Renderer> ().material = lazerOff;
 		lazer.GetComponent<AudioSource> ().enabled = false;
 		oldPlayerPos = transform.position;
+		previousShader = null;
 	}
 
 	void Update () {
@@ -55,7 +57,7 @@ public class RayCastingController : MonoBehaviour {
 		RaycastHit firstHit;
 		RaycastHit objectFirstPlane;
 
-		Ray ray = new Ray(wand.transform.position, wand.transform.up);
+		Ray ray = new Ray (wand.transform.position, wand.transform.up);
 		Debug.DrawRay (ray.origin, ray.direction * RAYCASTLENGTH, Color.blue);
 		bool rayCasted = Physics.Raycast (ray, out firstHit, RAYCASTLENGTH);
 		bool mirrorCasted = false;
@@ -65,57 +67,49 @@ public class RayCastingController : MonoBehaviour {
 			mirrorCasted = firstHit.transform.CompareTag ("mirror");
 		}
 
-		// Si l'utilisateur bouge, on bouge l'attached object (si il existe) avec lui
-		// on actualise pas la taille d'attachedObject car la taille apparente ne change pas
+		// If the user moves, attached object moves too if it exists ; relative size doesn't change
 		if (playerMoving ()) {
 			return;
 		}
 
-		/**** L'UTILISATEUR CLIQUE ***/
-		if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject == null) {
+		/**** THE USER CLICKS ***/
+		if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown ("Grab")) && attachedObject == null) {
 			if (rayCasted) {
 				objectFirstPlane = firstHit;
 				attachedObject = objectFirstPlane.rigidbody;
 				attachedObject.isKinematic = true;
 				distanceToObj = objectFirstPlane.distance;
-				if (attachedObject.GetComponent<MeshRenderer> ()) {
-					attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-				}
 				applyShader (SHADER_OUTLINED_DIFFUSE);
-				attachedObject.gameObject.AddComponent<CollisionScript>();
+				applyShadow (UnityEngine.Rendering.ShadowCastingMode.Off);
+				attachedObject.gameObject.AddComponent<CollisionScript> ();
 				rotationIsFinished = true;
 				firstRotation = true;
-			}
-			else if (mirrorCasted) {
+			} else if (mirrorCasted) {
 				float ratioNewPlayerSize = mirrorManager.GetComponent<MirrorManagerScript> ().newPlayerSize ();
-				transform.position = new Vector3(transform.position.x, transform.position.y * ratioNewPlayerSize, transform.position.z);
+				transform.position = new Vector3 (transform.position.x, transform.position.y * ratioNewPlayerSize, transform.position.z);
 				transform.localScale *= ratioNewPlayerSize;
 				Vector3 comparatorObjectPosition = mirrorManager.GetComponent<MirrorManagerScript> ().comparatorObject.transform.position;
 				GetComponent<FPSdeplacement> ().tSpeed *= ratioNewPlayerSize;
 			}
 		}
-		/*** L'UTILISATEUR RECLIQUE (LACHE L'OBJET) ***/
-		else if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown("Grab")) && attachedObject != null) {
+		/*** THE USER CLICKS AGAIN (RELEASES THE OBJECT) ***/
+		else if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown ("Grab")) && attachedObject != null) {
 			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 			attachedObject.isKinematic = false;
 			rotationIsFinished = true;
 			firstRotation = true;
-			GameObject.Destroy(attachedObject.gameObject.GetComponent<CollisionScript>());
-
-			if (attachedObject.GetComponent<MeshRenderer> ()) {
-				attachedObject.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
-			}
-			applyShader (SHADER_STANDARD);
-			GameObject.Destroy(attachedObject.gameObject.GetComponent<CollisionScript>());
+			GameObject.Destroy (attachedObject.gameObject.GetComponent<CollisionScript> ());
+			applyShader (previousShader);
+			applyShadow (UnityEngine.Rendering.ShadowCastingMode.On);
+			GameObject.Destroy (attachedObject.gameObject.GetComponent<CollisionScript> ());
 			attachedObject = null;
-
+			previousShader = null;
 			lazer.transform.GetChild (0).gameObject.SetActive (false);
 			lazer.GetComponent<AudioSource> ().enabled = false;
 		}
 
-		/*** L'UTILISATEUR A L'OBJET DANS LA MAIN ***/
+		/*** THE USER HAS THE OBJECT ***/
 		if (attachedObject != null) {
-			//V1
 			hitInfo = Physics.RaycastAll (ray, (float)RAYCASTLENGTH);
 
 			if (hitInfo.Length > 0) {
@@ -123,74 +117,52 @@ public class RayCastingController : MonoBehaviour {
 				objectSizeInitial = attachedObject.transform.lossyScale;
 
 				if (hitInfo.Length >= 2) {
-					
-					// 1er cas : le raycast passe par l'objet puis par le terrain
-					if (hitInfo[1].transform.tag == "Terrain") {
-						Debug.Log ("Dans le 1er cas");
-						moveObjectAgainst (ray, hitInfo[1].point, new Axis(false, false, false));
+					// 1st case : the ray goes through the object and then through the ground
+					if (hitInfo [1].transform.tag == "Terrain") {
+						moveObjectAgainst (ray, hitInfo [1].point, new Axis (false, false, false));
 					}
-					// 2eme cas : le raycast passe par le terrain (mais pas par l'objet saisi)
-					else if (hitInfo[0].transform.tag == "Terrain") {
-						Debug.Log ("Dans le 2eme cas");
-						moveObjectAgainst (ray, hitInfo[0].point, new Axis(false, false, false));
-					} 
-					// 3eme cas : le raycast passe par l'objet puis par un autre qui n'est pas le premier terrain
-					// typiquement : la tour
+					// 2nd case : the ray goes only through the ground
+					else if (hitInfo [0].transform.tag == "Terrain") {
+						moveObjectAgainst (ray, hitInfo [0].point, new Axis (false, false, false));
+					}
+					// 3rd case : the ray goes through the object and then throw a second object (tower for exemple)
 					else if (hitInfo [0].transform.gameObject.GetInstanceID () == attachedObject.gameObject.GetInstanceID ()) {
 						if (hitInfo [1].transform.tag == "bordure") {
-							Debug.Log ("Dans le 3eme cas A");
 							moveObjectAgainst (ray, hitInfo [0].transform.gameObject.transform.position, new Axis (false, false, false));
-						} 
-						else {
-							Debug.Log ("Dans le 3eme cas B"); 
-							moveObjectAgainst (ray, hitInfo [1].point, new Axis(false, false, true));
+						} else {
+							moveObjectAgainst (ray, hitInfo [1].point, new Axis (false, false, true));
 						}
 					}
-					// 4eme cas : un objet est entre nous et attachedObject
+					// 4th case : an object is between us and the attachedObject
 					else if (hitInfo [0].transform.gameObject.GetInstanceID () != attachedObject.gameObject.GetInstanceID ()
 					         && hitInfo [1].transform.gameObject.GetInstanceID () == attachedObject.gameObject.GetInstanceID ()) {
-						//rebaseObjectInFirstPlane ();
-						Debug.Log ("Dans le 4eme cas");
-						moveObjectAgainst (ray, hitInfo[0].point, new Axis(false, false, false), false);
+						moveObjectAgainst (ray, hitInfo [0].point, new Axis (false, false, false), false);
 					}
-
-					// les autres cas non identifiés (dans le doute on offset vers nous)
+					// Other unidentified cases (offset in our direction)
 					else {
-						Debug.Log ("Dans le 1er cas mystère");
-						moveObjectAgainst (ray, hitInfo [0].point, new Axis(false, false, true));
+						moveObjectAgainst (ray, hitInfo [0].point, new Axis (false, false, true));
 					}
-
-
 				}
-
-				// 5eme cas : le raycast passe seulement par l'objet
-				// typiquement : on vise le ciel
-				else if (hitInfo[0].transform.gameObject.GetInstanceID() == attachedObject.gameObject.GetInstanceID()) {
-					Debug.Log("Dans le 5eme cas");
-					moveObjectAgainst (ray, attachedObject.transform.position, new Axis(false, false, false));
+				// 5th case : the ray goes through only one object (points to the sky)
+				else if (hitInfo [0].transform.gameObject.GetInstanceID () == attachedObject.gameObject.GetInstanceID ()) {
+					moveObjectAgainst (ray, attachedObject.transform.position, new Axis (false, false, false));
 				}
-
-				// les autres cas non identifiés (dans le doute on offset vers nous)
+				// Other unidentified cases (offset in our direction)
 				else {
-  					Debug.Log ("Dans le 2eme cas mystère");
-					moveObjectAgainst (ray, attachedObject.transform.position, new Axis(false, false, true));
+					moveObjectAgainst (ray, attachedObject.transform.position, new Axis (false, false, true));
 				}
-		
-
 				lazer.GetComponent<Renderer> ().material = lazerOn;
 				lazer.transform.GetChild (0).gameObject.SetActive (true);
 				lazer.GetComponent<AudioSource> ().enabled = true;
-			} 
-			// 6eme cas : le raycast ne touche rien
-			// typiquement : on vise le ciel mais on perd le raycast sur l'objet
+			}
+			// 6th case : the ray doesn't go through anything (looses the object)
 			else {
-				Debug.Log("Dans le 6eme cas");
 				Vector3 newPos = ray.origin + ray.direction * Vector3.Distance (ray.origin, attachedObject.transform.position);
-				moveObjectAgainst (ray, attachedObject.transform.position, new Axis(false, false, false));
+				moveObjectAgainst (ray, attachedObject.transform.position, new Axis (false, false, false));
 			}
 		} 
 
-		/*** L'UTILISATEUR BOUGE LA SOURIS SANS CLIQUER ***/
+		/*** THE USER IS MOVING THE MOUSE WITHOUT CLICKING ***/
 		else {
 			if (mirrorCasted) {
 				lazer.GetComponent<Renderer> ().material = lazerMirror;
@@ -203,9 +175,10 @@ public class RayCastingController : MonoBehaviour {
 	}
 
 
-	/** moveObjectAgainst permet de plaquer un objet contre une autre surface tout en
-	 * décalant l'objet d'un offset horizontal/vertical/les deux
-	 **/
+	/** 
+	 * moveObjectAgainst allows us to move the object against another surface
+	 * horizontal and vertical offset might be needed
+	**/
 	private void moveObjectAgainst (Ray ray, Vector3 referencePoint, Axis offsetAxis, bool teleport = false) {
 		float offsetX = 0;
 		float offsetY = 0;
@@ -213,30 +186,33 @@ public class RayCastingController : MonoBehaviour {
 
 		if (offsetAxis.x) {
 			offsetX = attachedObject.transform.lossyScale.x / 2;
-		} if (offsetAxis.y) {
+		}
+		if (offsetAxis.y) {
 			offsetY = attachedObject.transform.lossyScale.y / 2;
-		} if (offsetAxis.z) {
+		}
+		if (offsetAxis.z) {
 			offsetZ = attachedObject.transform.lossyScale.z / 2;
 		}
-		
 
 		Vector3 offset = new Vector3 (0, offsetY, 0);
 		Vector3 newPos = ray.origin + ray.direction * (Vector3.Distance (ray.origin, referencePoint) - offsetZ) + offset;
 
-		// Cas particulier: l'endroit visé est le bas d'un objet
-		// Typiquement: le pied de la tour.
+		// So that the attached object doesn't go through the ground
 		if (newPos.y < attachedObject.transform.lossyScale.y / 2f) {
 			newPos.y = attachedObject.transform.lossyScale.y / 2f;
 		}
-
 		changePositionAndSize (newPos, teleport);
 	}
 
+	/**
+	 * changePositionAndSize moves the attached object to its new position and
+	 * changes its size according to the new distance between it and the user
+	**/
 	private void changePositionAndSize (Vector3 newPosition, bool teleport) {
 		Vector3 attachedObjectGroundPosition = attachedObject.position;
 		attachedObjectGroundPosition.y = newPosition.y;
-		float GroundDistanceFirstPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), attachedObjectGroundPosition);
-		float GroundDistanceSecondPlane = Vector3.Distance (Camera.main.transform.position - new Vector3(0, Camera.main.transform.position.y, 0), newPosition);
+		float GroundDistanceFirstPlane = Vector3.Distance (Camera.main.transform.position - new Vector3 (0, Camera.main.transform.position.y, 0), attachedObjectGroundPosition);
+		float GroundDistanceSecondPlane = Vector3.Distance (Camera.main.transform.position - new Vector3 (0, Camera.main.transform.position.y, 0), newPosition);
 
 		float sizeY = attachedObject.transform.lossyScale.y;
 		newSizeY = sizeY * (GroundDistanceSecondPlane / GroundDistanceFirstPlane);
@@ -253,10 +229,15 @@ public class RayCastingController : MonoBehaviour {
 		if (attachedObject.transform.position == newPosition) {
 			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 		} else {
-			Debug.Log ("Position impossible");
+			Debug.Log ("Impossible position");
 		}
 	}
 
+	/**
+	 * setAttachedObjectOrientation is used to change the attached object orientation
+	 * so that it allways faces the user.
+	 * Orientation on the X and Z axes are set to 0 to correct any unwanted orientation
+	**/
 	private void setAttachedObjectOrientation() {
 		if (firstRotation) {
 			Vector3 attachedObjectRotation = attachedObject.transform.rotation.eulerAngles;
@@ -281,18 +262,17 @@ public class RayCastingController : MonoBehaviour {
 			Vector3 newRot = wand.transform.rotation.eulerAngles;
 			newRot.x = 0;
 			newRot.z = 0;
-			attachedObject.transform.rotation = Quaternion.Euler(newRot);
+			attachedObject.transform.rotation = Quaternion.Euler (newRot);
 		}
 	}
 
-	private void setAttachedObjectOrientationOnSky() {
-		var rotationVector = wand.transform.rotation.eulerAngles;
-		//attachedObject.transform.rotation = Quaternion.Euler(rotationVector);
-	}
-
+	/**
+	 * applyShader is used to apply the self illuminated shader to selected object
+	 * and then apply their original shader. Applys to all sub-objects of the
+	 * attached object
+	**/
 	private void applyShader (string shaderToApply) {
 		listOfObjectToShader = new List<Transform> ();
-
 		if (attachedObject.GetComponent<Renderer> ()) {
 			listOfObjectToShader.Add (attachedObject.transform);
 		}
@@ -302,12 +282,18 @@ public class RayCastingController : MonoBehaviour {
 			}
 			getAllObjectsToShader (attachedObject.transform.GetChild (i));
 		}
+		if (listOfObjectToShader.Count > 0) {
+			previousShader = listOfObjectToShader [0].GetComponent<Renderer> ().material.shader.name;
+		}
 		foreach (Transform transform in listOfObjectToShader) {
 			transform.GetComponent<Renderer> ().material.shader = Shader.Find (shaderToApply);
 		}
-		//attachedObject.GetComponent<Renderer> ().material.shader = Shader.Find (shaderToApply);
 	}
 
+	/**
+	 * getAllObjectsToShader is a util function to get all sub-objects containing
+	 * a Renderer component (on which you must apply the new shader)
+	**/
 	private void getAllObjectsToShader(Transform child) {
 		for (int i = 0; i < child.childCount; i++) {
 			if (child.GetChild (i).GetComponent<Renderer> ()) {
@@ -317,7 +303,43 @@ public class RayCastingController : MonoBehaviour {
 		}
 	}
 
-	// Order hitInfo by distance
+	/**
+	 * applyShadow is used to activate or not the shadows on the attached object.
+	 * The shadow is set to off when the object is attached
+	**/
+	private void applyShadow (UnityEngine.Rendering.ShadowCastingMode shadowCastingMode) {
+		listOfObjectToShadow = new List<Transform> ();
+		if (attachedObject.GetComponent<MeshRenderer> ()) {
+			listOfObjectToShadow.Add (attachedObject.transform);
+		}
+		for (int i = 0; i < attachedObject.transform.childCount; i++) {
+			if (attachedObject.transform.GetChild (i).GetComponent<MeshRenderer> ()) {
+				listOfObjectToShadow.Add (attachedObject.transform.GetChild (i));
+			}
+			getAllObjectsToShadow (attachedObject.transform.GetChild (i));
+		}
+		foreach (Transform transform in listOfObjectToShadow) {
+			transform.GetComponent<MeshRenderer> ().shadowCastingMode = shadowCastingMode;
+
+		}
+	}
+
+	/**
+	 * getAllObjectsToShadow is a util function to get all sub-objects containing
+	 * a MeshRenderer component (on which you must apply or not the new shadow)
+	**/
+	private void getAllObjectsToShadow(Transform child) {
+		for (int i = 0; i < child.childCount; i++) {
+			if (child.GetChild (i).GetComponent<MeshRenderer> ()) {
+				listOfObjectToShadow.Add (child.GetChild (i));
+			}
+			getAllObjectsToShadow (child.GetChild (i));
+		}
+	}
+
+	/**
+	 * orderHitInfo orders the hitted objects by increasing distance to the user
+	**/
 	private RaycastHit[] orderHitInfo(RaycastHit[] hitInfo) {
 		for (int K = 0; K < hitInfo.Length; K++) {
 			for (int I = hitInfo.Length - 2; I >= 0; I--) {
@@ -333,36 +355,39 @@ public class RayCastingController : MonoBehaviour {
 		return hitInfo;
 	}
 
-	private Vector3 getClosestContactPoint(ContactPoint[] contactPoints) {
-		Vector3 closestPoint = new Vector3(100, 100, 100);
-		foreach (ContactPoint contact in contactPoints) {
-			if (Vector3.Distance (Camera.main.transform.position, closestPoint) < Vector3.Distance (Camera.main.transform.position, contact.point)) {
-				closestPoint = contact.point;
-			}
-		}
-		return closestPoint;
-	}
-
+	/**
+	 * playerMoving is used to move the object when the player is also moving without
+	 * changing its size
+	**/
 	private bool playerMoving() {
 		if (transform.position == oldPlayerPos) {
 			return false;
 		} else {
 			if (attachedObject != null) {
-				attachedObject.MovePosition(attachedObject.transform.position + transform.position - oldPlayerPos);
+				attachedObject.MovePosition (attachedObject.transform.position + transform.position - oldPlayerPos);
 			}
 			oldPlayerPos = transform.position;
 			return true;
 		}
 	}
 
+	/**
+	 * setAttachedObjectCollision is used to set the collision when attached object hits another object
+	**/
 	public void setAttachedObjectCollision(Collision collision) {
 		attachedObjectCollision = collision;
 	}
 
+	/**
+	 * getAttachedObjectCollision is used to get the collision when attached object hits another object
+	**/
 	public Collision getAttachedObjectCollision() {
 		return attachedObjectCollision;
 	}
 
+	/**
+	 * getAttachedObject is used to get the attachedObject
+	**/
 	public GameObject getAttachedObject() {
 		if (attachedObject != null) {
 			return attachedObject.gameObject;
@@ -371,14 +396,22 @@ public class RayCastingController : MonoBehaviour {
 		}
 	}
 
+	/**
+	 * preventMovingAfter is used to prevent the attached object to move after the user releases it.
+	 * (for exemple when it slightly enters into another object)
+	**/
 	public void preventMovingAfter(Rigidbody rb, float x){
 		StartCoroutine (preventMovingCoroutine(rb, x));
 	}
 
+	/**
+	 * preventMovingCoroutine waits and then cancel all the forces applying to the object so that it
+	 * stays still
+	**/
 	private IEnumerator preventMovingCoroutine(Rigidbody rb, float x){
-		Debug.Log ("J'attends");
+		Debug.Log ("Waiting ...");
 		yield return new WaitForSeconds (x);
-		Debug.Log ("J'ai attendu");
+		Debug.Log ("Stopped waiting");
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
 	}
