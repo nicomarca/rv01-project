@@ -6,14 +6,11 @@ public class PostEffect : MonoBehaviour
 	Camera AttachedCamera;
 	public Shader Post_Outline;
 
-	void Start () 
-	{
+	void Start () {
 		AttachedCamera = GetComponent<Camera>();
 	}
 
-	void OnRenderImage(RenderTexture source, RenderTexture destination)
-	{
+	void OnRenderImage(RenderTexture source, RenderTexture destination) {
 
 	}
-
 }
