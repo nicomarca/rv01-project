@@ -5,7 +5,7 @@ using UnityEngine.VR;
 
 public class RayCastingController : MonoBehaviour {
 	
-	private const int 	RAYCASTLENGTH = 1000;		// Length of the ray
+	private const int 	RAYCASTLENGTH = 3000;		// Length of the ray
 
 	private float 		distanceToObj;				// Distance entre le personnage et l'objet saisi
 	private float 		ratio;						// Ratio between the distances
