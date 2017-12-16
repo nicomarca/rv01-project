@@ -13,11 +13,15 @@ public class FPSdeplacement : MonoBehaviour {
 
 	public bool VR;
 
+	private bool isMoving = false;
+
 	void Start () {
 		maxSpeed = tSpeed; // Limit the speed
 	}
 	
 	void Update () {
+		isMoving = false;
+
 		if (tSpeed > maxSpeed)
 			tSpeed = maxSpeed;
 
@@ -30,15 +34,19 @@ public class FPSdeplacement : MonoBehaviour {
 		} else {
 			if (Input.GetKey ("z")) {
 				transform.GetComponent<Rigidbody>().MovePosition(transform.position + Camera.main.transform.rotation*Vector3.forward * tSpeed);
+				isMoving = true;
 			}
 			if (Input.GetKey ("s")) {
 				transform.GetComponent<Rigidbody>().MovePosition(transform.position + Camera.main.transform.rotation*Vector3.back * tSpeed);
+				isMoving = true;
 			}
 			if (Input.GetKey ("q")) {
 				transform.GetComponent<Rigidbody>().MovePosition(transform.position + Camera.main.transform.rotation*Vector3.left * tSpeed);
+				isMoving = true;
 			}
 			if (Input.GetKey ("d")) {
 				transform.GetComponent<Rigidbody>().MovePosition(transform.position + Camera.main.transform.rotation*Vector3.right * tSpeed);
+				isMoving = true;
 			}
 
 			if (Input.GetKey ("left")) {
@@ -52,6 +60,11 @@ public class FPSdeplacement : MonoBehaviour {
 			}
 			if (Input.GetKey ("down")) {
 				transform.Rotate (Vector3.right, rSpeed);
+			}
+
+			if (isMoving == false) {
+				GetComponent<Rigidbody> ().velocity = Vector3.zero;
+				GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
 			}
 		}
 	}
