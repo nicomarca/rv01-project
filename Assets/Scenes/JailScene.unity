@@ -5376,6 +5376,22 @@ Light:
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!1 &1945878038 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 100000, guid: d0989725c7a4a044fb2fbf0a36d82262, type: 3}
+  m_PrefabInternal: {fileID: 983094190}
+--- !u!65 &1945878042
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1945878038}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 3.76419, y: 2.083052, z: 2.678473}
+  m_Center: {x: 0, y: 1.041526, z: 0.0032465458}
 --- !u!1 &1946816027
 GameObject:
   m_ObjectHideFlags: 0
