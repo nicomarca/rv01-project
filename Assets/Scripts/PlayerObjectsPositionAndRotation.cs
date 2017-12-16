@@ -40,7 +40,7 @@ public class PlayerObjectsPositionAndRotation : MonoBehaviour {
 	}
 
 	void bootsPlacement(){
-		boots.transform.position = new Vector3 (cam.transform.position.x, cam.transform.position.y, GetComponent<CapsuleCollider>().bounds.min.y);
+		boots.transform.position = new Vector3 (cam.transform.position.x, GetComponent<CapsuleCollider>().bounds.min.y, cam.transform.position.z);
 		boots.transform.rotation = new Quaternion (0, cam.transform.rotation.y, 0, 0);
 	}
 
