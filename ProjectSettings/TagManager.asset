@@ -11,6 +11,7 @@ TagManager:
   - bordure
   - FxTemporaire
   - projectile
+  - wand
   layers:
   - Default
   - TransparentFX
