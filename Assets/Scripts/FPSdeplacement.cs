@@ -45,10 +45,10 @@ public class FPSdeplacement : MonoBehaviour {
 		Quaternion horizontalQuat = Quaternion.Euler (horizontalAngle);
 		isMoving = false;
 
-		if (VR){
+		//if (VR){
 			Vector3 rot = new Vector3(0, transform.rotation.eulerAngles.y, 0);
 			transform.rotation = Quaternion.Euler (rot);
-		}
+		//}
 
 		if (tSpeed > maxSpeed)
 			tSpeed = maxSpeed;
@@ -95,6 +95,8 @@ public class FPSdeplacement : MonoBehaviour {
 			if(Input.GetKeyDown(KeyCode.Space) && isGrounded){
 				transform.GetComponent<Rigidbody>().AddForce(jump * jumpForce, ForceMode.Impulse);
 				isGrounded = false;
+				isJumping = true;
+				//waitForEndOfJumps (3);
 			}
 
 			if (Input.GetKey ("left")) {
@@ -111,25 +113,33 @@ public class FPSdeplacement : MonoBehaviour {
 			}
 		}
 
-		if (!isGrounded) {
+		if (isGrounded == false) {
+			// means that it is jumping or falling
+			//StartCoroutine (waitForEndOfJumps(1));
 			isMoving = true;
-		}
+		} 
 
-		if (isMoving == false) {
+
+		else if (isMoving == false) {
 			GetComponent<Rigidbody> ().velocity = Vector3.zero;
 			GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
 		}
 	}
 
+	private IEnumerator waitForEndOfJumps(float x){
+		yield return new WaitForSeconds (x);
+		Vector3 rot = new Vector3(0, transform.rotation.eulerAngles.y, 0);
+		transform.rotation = Quaternion.Euler (rot);
+		isGrounded = true;
+	}
+
 
 	void OnTriggerEnter() {
 		isGrounded = true;
-		isJumping = false;
 	}
 
 	void OnTriggerExit() {
 		isGrounded = false;
-		isJumping = true;
 	}
 
 

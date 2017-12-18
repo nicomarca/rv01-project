@@ -410,9 +410,7 @@ public class RayCastingController : MonoBehaviour {
 	 * stays still
 	**/
 	private IEnumerator preventMovingCoroutine(Rigidbody rb, float x){
-		Debug.Log ("Waiting ...");
 		yield return new WaitForSeconds (x);
-		Debug.Log ("Stopped waiting");
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
 	}

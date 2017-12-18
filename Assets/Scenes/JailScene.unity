@@ -2047,6 +2047,18 @@ GameObject:
   m_PrefabParentObject: {fileID: 1952917617718196, guid: c9288942f5928d54791df234b24f4aae,
     type: 2}
   m_PrefabInternal: {fileID: 1545258742}
+--- !u!65 &606799306
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 606799304}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: -1.1, z: 0}
 --- !u!1 &609162283 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 1172658831031924, guid: c9288942f5928d54791df234b24f4aae,
@@ -4879,7 +4891,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4621140136513200, guid: c9288942f5928d54791df234b24f4aae, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 2.48
+      value: 1.67
       objectReference: {fileID: 0}
     - target: {fileID: 4621140136513200, guid: c9288942f5928d54791df234b24f4aae, type: 2}
       propertyPath: m_LocalPosition.z
@@ -4908,7 +4920,7 @@ Prefab:
     - target: {fileID: 136736862146733150, guid: c9288942f5928d54791df234b24f4aae,
         type: 2}
       propertyPath: m_Radius
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114186097845508996, guid: c9288942f5928d54791df234b24f4aae,
         type: 2}
@@ -4954,19 +4966,21 @@ Prefab:
     - target: {fileID: 114636234621001208, guid: c9288942f5928d54791df234b24f4aae,
         type: 2}
       propertyPath: VR
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114937568143743854, guid: c9288942f5928d54791df234b24f4aae,
         type: 2}
       propertyPath: VR
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 65995418935394604, guid: c9288942f5928d54791df234b24f4aae,
         type: 2}
       propertyPath: m_Center.y
       value: -1.8
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 65399491347943126, guid: c9288942f5928d54791df234b24f4aae, type: 2}
+    - {fileID: 65169552154363920, guid: c9288942f5928d54791df234b24f4aae, type: 2}
   m_ParentPrefab: {fileID: 100100000, guid: c9288942f5928d54791df234b24f4aae, type: 2}
   m_IsPrefabParent: 0
 --- !u!1 &1563707430
