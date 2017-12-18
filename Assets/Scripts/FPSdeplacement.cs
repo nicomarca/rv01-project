@@ -33,12 +33,22 @@ public class FPSdeplacement : MonoBehaviour {
 
 		collisions = new List<Rigidbody> ();
 
+		if (VR) {
+			GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.FreezeRotationX;
+			GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.FreezeRotationZ;
+		}
+
 	}
 	
 	void Update () {
 		Vector3 horizontalAngle = new Vector3 (0, transform.rotation.eulerAngles.y, 0);
 		Quaternion horizontalQuat = Quaternion.Euler (horizontalAngle);
 		isMoving = false;
+
+		if (VR){
+			Vector3 rot = new Vector3(0, transform.rotation.eulerAngles.y, 0);
+			transform.rotation = Quaternion.Euler (rot);
+		}
 
 		if (tSpeed > maxSpeed)
 			tSpeed = maxSpeed;

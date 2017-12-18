@@ -63,9 +63,7 @@ public class JailScenarioScript : MonoBehaviour {
 					displayedWand.SetActive (true);
 
 					// Unfreeze the player
-					player.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.None;
-					player.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.FreezePositionY;
-				}
+					player.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.None;				}
 			} 
 
 			// Decrease the light intensity to 3
