@@ -58,7 +58,6 @@ public class FPSdeplacement : MonoBehaviour {
 		} else {
 
 			if (Input.GetKey ("z")) {
-				Debug.LogError (Camera.main.transform.rotation);
 				transform.GetComponent<Rigidbody>().MovePosition(transform.position + horizontalQuat*Vector3.forward * tSpeed);
 				isMoving = true;
 			}
