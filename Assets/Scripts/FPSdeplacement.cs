@@ -12,7 +12,6 @@ public class FPSdeplacement : MonoBehaviour {
 
 
 	public Vector3 jump;
-
 	public bool isGrounded;
 
 
@@ -21,9 +20,9 @@ public class FPSdeplacement : MonoBehaviour {
 	public bool VR;
 
 	private bool isMoving = false;
+	private bool isJumping = false;
 
-	private int collisionCount = 0;
-
+	private List<Rigidbody> collisions;
 
 
 
@@ -31,6 +30,8 @@ public class FPSdeplacement : MonoBehaviour {
 		maxSpeed = tSpeed; // Limit the speed
 		jump = new Vector3(0.0f, 3.0f, 0.0f);
 		isGrounded = true;
+
+		collisions = new List<Rigidbody> ();
 
 	}
 	
@@ -43,6 +44,9 @@ public class FPSdeplacement : MonoBehaviour {
 			tSpeed = maxSpeed;
 
 		if (VR) {
+			horizontalAngle = new Vector3 (0, Camera.main.transform.rotation.eulerAngles.y, 0);
+			horizontalQuat = Quaternion.Euler (horizontalAngle);
+
 			float mouvmentHorizontal = Input.GetAxis ("Horizontal");
 			float mouvmentVertical = Input.GetAxis ("Vertical");
 
@@ -59,7 +63,9 @@ public class FPSdeplacement : MonoBehaviour {
 			}
 
 		} else {
-
+			horizontalAngle = new Vector3 (0, transform.rotation.eulerAngles.y, 0);
+			horizontalQuat = Quaternion.Euler (horizontalAngle);
+		
 			if (Input.GetKey ("z")) {
 				transform.GetComponent<Rigidbody>().MovePosition(transform.position + horizontalQuat*Vector3.forward * tSpeed);
 				isMoving = true;
@@ -105,14 +111,39 @@ public class FPSdeplacement : MonoBehaviour {
 		}
 	}
 
-		void OnTriggerEnter(Collider other) 
-	{
+
+	void OnTriggerEnter() {
 		isGrounded = true;
+		isJumping = false;
 	}
 
-			void OnTriggerExit() 
-	{
+	void OnTriggerExit() {
 		isGrounded = false;
+		isJumping = true;
+	}
 
+
+	void OnCollisionEnter(Collision collision){
+		/* prevent objects from moving when collision with player */
+		if (collision.gameObject.GetComponent<Rigidbody> () != null) {
+			if (!collisions.Contains (collision.gameObject.GetComponent<Rigidbody> ())) {
+				collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.FreezeAll;
+				collisions.Add (collision.gameObject.GetComponent<Rigidbody> ());
+			}
+		}
+	}
+
+	void OnCollisionExit(Collision collision){
+		/* freeze the player so he does not bump into objects */
+		if (!isJumping) {
+			GetComponent<Rigidbody> ().velocity = Vector3.zero;
+			GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
+		}
+
+		/* unfreeze the frozen objetcs colliding with player */
+		if (collision.transform.GetComponent<Rigidbody> () != null) {
+			collisions.Remove (collision.gameObject.GetComponent<Rigidbody> ());
+			collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.None;
+		}
 	}
 }

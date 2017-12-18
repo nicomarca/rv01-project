@@ -105,6 +105,7 @@ GameObject:
   - component: {fileID: 20472500907143816}
   - component: {fileID: 81902682037138238}
   - component: {fileID: 124129192555778226}
+  - component: {fileID: 114250457075301388}
   m_Layer: 0
   m_Name: Camera
   m_TagString: MainCamera
@@ -160,6 +161,8 @@ GameObject:
   - component: {fileID: 136736862146733150}
   - component: {fileID: 54125717396913630}
   - component: {fileID: 114937568143743854}
+  - component: {fileID: 65169552154363920}
+  - component: {fileID: 65399491347943126}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -213,8 +216,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1360396913566754}
-  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: -1.63, z: 0}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: -1.5000002, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4621140136513200}
@@ -226,8 +229,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1246034024526228}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.5, z: -0.5}
+  m_LocalRotation: {x: -0.15298769, y: 0.52283263, z: -0.09601353, w: -0.83308}
+  m_LocalPosition: {x: 0.7, y: 0.60000026, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4821031941293424}
@@ -241,7 +244,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1710668964912312}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.5, z: -0.5}
+  m_LocalPosition: {x: 0, y: 1.0000002, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4102790433276936}
@@ -255,7 +258,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1952917617718196}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 184.4, y: 1.5, z: 132.7}
+  m_LocalPosition: {x: 183.74, y: 1.5, z: 132.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4424069046635620}
@@ -437,7 +440,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: 5375b15745bd53c46b8ff3216c94244c, type: 2}
+  - {fileID: 2100000, guid: 3be43c8f9c7d3b84eb83158b15088c57, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -538,6 +541,30 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!65 &65169552154363920
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1952917617718196}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.4, y: 0.4, z: 0.4}
+  m_Center: {x: 0, y: -1.5, z: 0}
+--- !u!65 &65399491347943126
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1952917617718196}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.4, y: 0.4, z: 0.4}
+  m_Center: {x: 0, y: -1.5, z: 0}
 --- !u!81 &81902682037138238
 AudioListener:
   m_ObjectHideFlags: 1
@@ -643,6 +670,19 @@ MonoBehaviour:
   lazer: {fileID: 1753714161175530}
   wand: {fileID: 1849855208646594}
   mirrorManager: {fileID: 0}
+--- !u!114 &114250457075301388
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1710668964912312}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 301c5f034b8899741b578076adcb2a48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hmdType: 0
+  stereoRendererList: []
 --- !u!114 &114636234621001208
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -656,6 +696,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tSpeed: 0.5
   rSpeed: 8
+  jumpForce: 2
+  jump: {x: 0, y: 3, z: 0}
+  isGrounded: 1
   VR: 0
 --- !u!114 &114937568143743854
 MonoBehaviour:
