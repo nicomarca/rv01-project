@@ -99,21 +99,19 @@ public class FPSdeplacement : MonoBehaviour {
 			isMoving = true;
 		}
 
-		if (isMoving == false && isGrounded == false) {
+		if (isMoving == false) {
 			GetComponent<Rigidbody> ().velocity = Vector3.zero;
 			GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
 		}
 	}
 
-
-	void OnCollisionEnter () {
-		collisionCount++; 
+		void OnTriggerEnter(Collider other) 
+	{
 		isGrounded = true;
 	}
 
-
-	void OnCollisionExit () {
-		collisionCount--;
+			void OnTriggerExit() 
+	{
 		isGrounded = false;
 
 	}
