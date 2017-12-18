@@ -20,9 +20,12 @@ public class FPSdeplacement : MonoBehaviour {
 
 	public bool VR;
 
-
-
 	private bool isMoving = false;
+
+	private int collisionCount = 0;
+
+
+
 
 	void Start () {
 		maxSpeed = tSpeed; // Limit the speed
@@ -102,11 +105,17 @@ public class FPSdeplacement : MonoBehaviour {
 			}
 		}
 	}
-
-	void OnCollisionStay(Collision collision)
-	{
 		
+
+	void OnCollisionEnter () {
+		collisionCount++;
 		isGrounded = true;
-		Debug.Log (collision.transform.name);
+	}
+
+
+	void OnCollisionExit () {
+		collisionCount--;
+		isGrounded = false;
+
 	}
 }
