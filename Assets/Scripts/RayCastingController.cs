@@ -86,6 +86,7 @@ public class RayCastingController : MonoBehaviour {
 				firstRotation = true;
 			} else if (mirrorCasted) {
 				float ratioNewPlayerSize = mirrorManager.GetComponent<MirrorManagerScript> ().newPlayerSize ();
+				Debug.Log ("ratioNewPlayerSize" + ratioNewPlayerSize);
 				transform.position = new Vector3 (transform.position.x, transform.position.y * ratioNewPlayerSize, transform.position.z);
 				transform.localScale *= ratioNewPlayerSize;
 				Vector3 comparatorObjectPosition = mirrorManager.GetComponent<MirrorManagerScript> ().comparatorObject.transform.position;
