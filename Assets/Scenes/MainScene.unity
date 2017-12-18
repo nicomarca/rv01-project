@@ -7757,6 +7757,31 @@ Prefab:
       propertyPath: mirrorManager
       value: 
       objectReference: {fileID: 948913217}
+    - target: {fileID: 4424069046635620, guid: c9288942f5928d54791df234b24f4aae, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4424069046635620, guid: c9288942f5928d54791df234b24f4aae, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4424069046635620, guid: c9288942f5928d54791df234b24f4aae, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4424069046635620, guid: c9288942f5928d54791df234b24f4aae, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4424069046635620, guid: c9288942f5928d54791df234b24f4aae, type: 2}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 114636234621001208, guid: c9288942f5928d54791df234b24f4aae,
+        type: 2}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c9288942f5928d54791df234b24f4aae, type: 2}
   m_IsPrefabParent: 0
