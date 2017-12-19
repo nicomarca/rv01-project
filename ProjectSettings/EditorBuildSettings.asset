@@ -4,4 +4,10 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/JailScene.unity
+    guid: 6dd79f13df056ed4dbb6b2efa915deef
+  - enabled: 1
+    path: Assets/Scenes/MainScene.unity
+    guid: 9c912da92c2224944982900c005a2fef
