@@ -9,7 +9,7 @@ public class ChangeMirrorManager : MonoBehaviour {
 	public GameObject hallMirror;
 	public GameObject player;
 
-	private bool isJailMirrorUsed;
+	public bool isJailMirrorUsed;
 
 	// Use this for initialization
 	void Start () {
@@ -24,8 +24,12 @@ public class ChangeMirrorManager : MonoBehaviour {
 	void OnTriggerEnter(Collider other) {
 		if (other.transform.name == "Player") {
 			if (isJailMirrorUsed) {
+				hallMirror.GetComponent<MirrorManagerScript>().playerRatio = jailMirror.GetComponent<MirrorManagerScript>().playerRatio;
 				player.GetComponent<RayCastingController> ().mirrorManager = hallMirror;
 				isJailMirrorUsed = false;
+				gameObject.GetComponent<Collider> ().enabled = false;
+
+
 			} else {
 				player.GetComponent<RayCastingController> ().mirrorManager = jailMirror;
 				isJailMirrorUsed = true;

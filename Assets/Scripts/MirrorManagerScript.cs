@@ -11,7 +11,7 @@ public class MirrorManagerScript : MonoBehaviour {
 	private float distanceToObj;					// Distance between mirror and reference object
 	private float distanceToPlayer = 10.0f;					// Distance between mirror and player
 	private float size;								// Player size
-	private float playerRatio;
+	public float playerRatio;
 	
 	public GameObject comparatorObject; 			// Prefab of the comparator object
 	public GameObject player;  						// Player
@@ -45,7 +45,6 @@ public class MirrorManagerScript : MonoBehaviour {
 	{
 		float ratio = 1.0f;							// Ratio between size and comparator size
 		if (SceneManager.GetActiveScene ().name == "JailScene") {
-			Debug.Log ("ziehfizehfuhzefze");
 			if (distanceToPlayer < 23) {
 
 				if (distanceToPlayer < 3.5) {
@@ -118,21 +117,25 @@ public class MirrorManagerScript : MonoBehaviour {
 		float newRatioPlayerObject = newRatio ();
 		float oldRatioPlayer = playerRatio;
 		playerRatio *= newRatioPlayerObject;
-		/*
 		if (SceneManager.GetActiveScene ().name == "JailScene") {
-			if ((playerRatio <= 0.1f && playerRatio < oldRatioPlayer) || (playerRatio > 2.0f && playerRatio > oldRatioPlayer)) {
+			Debug.Log ("newRatio total " + playerRatio);
+			bool first = (playerRatio <= 0.15f && playerRatio < oldRatioPlayer);
+			bool second = (playerRatio > 3.0f && playerRatio > oldRatioPlayer);
+			Debug.Log ("first " + first);
+			Debug.Log ("second " + second);
+
+			if ((playerRatio <= 0.15f && playerRatio < oldRatioPlayer) || (playerRatio > 3.0f && playerRatio > oldRatioPlayer)) {
 				return 1.0f;
 			} else {
 				return newRatioPlayerObject;
 			}
 		}else {
-			if ((playerRatio <= 0.2f && playerRatio < oldRatioPlayer) || (playerRatio > 5.0f && playerRatio > oldRatioPlayer)) {
+			if ((playerRatio <= 0.15f && playerRatio < oldRatioPlayer) || (playerRatio > 5.0f && playerRatio > oldRatioPlayer)) {
 				return 1.0f;
 			} else {
 				return newRatioPlayerObject;
 			}
 		}
-		*/
 		return newRatioPlayerObject;
 	
 	}
