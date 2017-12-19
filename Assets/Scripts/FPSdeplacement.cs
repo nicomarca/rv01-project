@@ -137,7 +137,6 @@ public class FPSdeplacement : MonoBehaviour {
 	}
 
 	void OnTriggerExit() {
-		StopCoroutine (coroutine);
 		isGrounded = false;
 	}
 
