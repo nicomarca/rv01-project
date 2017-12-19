@@ -29,6 +29,7 @@ public class RayCastingController : MonoBehaviour {
 	public GameObject 	lazer;							// Lazer of the wand 
 	public GameObject	wand;							// wand in the right hand of the user
 	public GameObject	mirrorManager;					// mirror manager to change player size
+	public GameObject 	finalChest;
 
 	private struct Axis {
 		public bool x;
@@ -61,10 +62,14 @@ public class RayCastingController : MonoBehaviour {
 		Debug.DrawRay (ray.origin, ray.direction * RAYCASTLENGTH, Color.blue);
 		bool rayCasted = Physics.Raycast (ray, out firstHit, RAYCASTLENGTH);
 		bool mirrorCasted = false;
+		bool chestCasted = false;
 
 		if (rayCasted) {
 			rayCasted = firstHit.transform.CompareTag ("draggable");
 			mirrorCasted = firstHit.transform.CompareTag ("mirror");
+			chestCasted = firstHit.transform.CompareTag ("chest");
+
+
 		}
 
 		// If the user moves, attached object moves too if it exists ; relative size doesn't change
@@ -90,7 +95,12 @@ public class RayCastingController : MonoBehaviour {
 				transform.localScale *= ratioNewPlayerSize;
 				Vector3 comparatorObjectPosition = mirrorManager.GetComponent<MirrorManagerScript> ().comparatorObject.transform.position;
 				GetComponent<FPSdeplacement> ().tSpeed *= ratioNewPlayerSize;
+			} else if (chestCasted) {
+				objectFirstPlane = firstHit;
+				objectFirstPlane.transform.GetComponent<ActivateChest> ()._open = true;
+
 			}
+
 		}
 		/*** THE USER CLICKS AGAIN (RELEASES THE OBJECT) ***/
 		else if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown ("Grab")) && attachedObject != null) {
@@ -164,7 +174,7 @@ public class RayCastingController : MonoBehaviour {
 
 		/*** THE USER IS MOVING THE MOUSE WITHOUT CLICKING ***/
 		else {
-			if (mirrorCasted) {
+			if (mirrorCasted || chestCasted) {
 				lazer.GetComponent<Renderer> ().material = lazerMirror;
 			} else if (rayCasted) {
 				lazer.GetComponent<Renderer> ().material = lazerOK;

@@ -12,6 +12,7 @@ TagManager:
   - FxTemporaire
   - projectile
   - wand
+  - chest
   layers:
   - Default
   - TransparentFX
