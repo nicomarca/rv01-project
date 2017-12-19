@@ -24,7 +24,7 @@ public class FPSdeplacement : MonoBehaviour {
 
 	private List<Rigidbody> collisions;
 
-
+	private IEnumerator coroutine;
 
 	void Start () {
 		maxSpeed = tSpeed; // Limit the speed
@@ -67,9 +67,10 @@ public class FPSdeplacement : MonoBehaviour {
 				isMoving = true;
 			}
 
-			if(Input.GetButtonDown ("Jump")) {
+			if(Input.GetButtonDown ("Jump") && isGrounded) {
 				transform.GetComponent<Rigidbody>().AddForce(jump * jumpForce, ForceMode.Impulse);
 				isGrounded = false;
+				isJumping = true;
 			}
 
 		} else {
@@ -96,7 +97,6 @@ public class FPSdeplacement : MonoBehaviour {
 				transform.GetComponent<Rigidbody>().AddForce(jump * jumpForce, ForceMode.Impulse);
 				isGrounded = false;
 				isJumping = true;
-				//waitForEndOfJumps (3);
 			}
 
 			if (Input.GetKey ("left")) {
@@ -114,24 +114,22 @@ public class FPSdeplacement : MonoBehaviour {
 		}
 
 		if (isGrounded == false) {
-			// means that it is jumping or falling
-			//StartCoroutine (waitForEndOfJumps(1));
 			isMoving = true;
 		} 
 
 
 		else if (isMoving == false) {
-			GetComponent<Rigidbody> ().velocity = Vector3.zero;
+			//GetComponent<Rigidbody> ().velocity = Vector3.zero;
 			GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
 		}
 	}
-
+	/*
 	private IEnumerator waitForEndOfJumps(float x){
 		yield return new WaitForSeconds (x);
 		Vector3 rot = new Vector3(0, transform.rotation.eulerAngles.y, 0);
 		transform.rotation = Quaternion.Euler (rot);
 		isGrounded = true;
-	}
+	}*/
 
 
 	void OnTriggerEnter() {
@@ -139,6 +137,7 @@ public class FPSdeplacement : MonoBehaviour {
 	}
 
 	void OnTriggerExit() {
+		StopCoroutine (coroutine);
 		isGrounded = false;
 	}
 
