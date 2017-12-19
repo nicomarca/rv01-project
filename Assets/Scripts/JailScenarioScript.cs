@@ -18,6 +18,12 @@ public class JailScenarioScript : MonoBehaviour {
 	public GameObject stick;
 	public GameObject player;
 
+	public AudioClip introVoice;
+	private AudioSource introVoiceSource;
+
+	public AudioClip instructionWand;
+	private AudioSource instructionWandSource;
+
 	private float timer;
 	private bool flashDone = false;
 	private bool flashStabilized = false;
@@ -25,6 +31,10 @@ public class JailScenarioScript : MonoBehaviour {
 
 	void Start () {
 		timer = 0.0f;
+		introVoiceSource = CreateSource(introVoice);
+		instructionWandSource = CreateSource (instructionWand);
+		introVoiceSource.Play ();
+
 	}
 
 	void Update () {
@@ -45,6 +55,7 @@ public class JailScenarioScript : MonoBehaviour {
 					wandTaken = true;
 
 					light.intensity = 0;
+					instructionWandSource.Play ();
 				}
 			}
 		}
@@ -52,7 +63,7 @@ public class JailScenarioScript : MonoBehaviour {
 
 	void flashLight(){
 		// Waits for the introduction to finish 
-		if (timer > 2.0) {
+		if (timer > 4.0) {
 			// Increase the light intensity to 12
 			if (!flashDone) {
 				light.intensity += 3.0f;
@@ -77,5 +88,16 @@ public class JailScenarioScript : MonoBehaviour {
 			}
 
 		}
+	}
+
+	private AudioSource CreateSource(AudioClip clip)
+	{
+
+		AudioSource source = gameObject.AddComponent<AudioSource> ();
+		source.playOnAwake = false;
+		source.clip = clip;
+		source.volume = 1;
+		source.loop = false;
+		return source;
 	}
 }
