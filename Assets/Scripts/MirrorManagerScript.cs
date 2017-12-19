@@ -118,19 +118,16 @@ public class MirrorManagerScript : MonoBehaviour {
 		float oldRatioPlayer = playerRatio;
 		playerRatio *= newRatioPlayerObject;
 		if (SceneManager.GetActiveScene ().name == "JailScene") {
-			Debug.Log ("newRatio total " + playerRatio);
-			bool first = (playerRatio <= 0.15f && playerRatio < oldRatioPlayer);
-			bool second = (playerRatio > 3.0f && playerRatio > oldRatioPlayer);
-			Debug.Log ("first " + first);
-			Debug.Log ("second " + second);
-
+			
 			if ((playerRatio <= 0.15f && playerRatio < oldRatioPlayer) || (playerRatio > 3.0f && playerRatio > oldRatioPlayer)) {
+				playerRatio = oldRatioPlayer;
 				return 1.0f;
 			} else {
 				return newRatioPlayerObject;
 			}
 		}else {
 			if ((playerRatio <= 0.15f && playerRatio < oldRatioPlayer) || (playerRatio > 5.0f && playerRatio > oldRatioPlayer)) {
+				playerRatio = oldRatioPlayer;
 				return 1.0f;
 			} else {
 				return newRatioPlayerObject;
