@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731725, g: 0.13414745, b: 0.12107873, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731703, g: 0.13414727, b: 0.12107852, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -563,6 +563,62 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 5ddc0412d5260804da13193a3df485b6, type: 3}
   m_IsPrefabParent: 0
+--- !u!1 &102022493
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 102022496}
+  - component: {fileID: 102022495}
+  - component: {fileID: 102022494}
+  m_Layer: 0
+  m_Name: MirrorTrigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &102022494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 102022493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2803d3bcae8c84604ab2366cb13ef5e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  jailMirror: {fileID: 2011204336}
+  hallMirror: {fileID: 397017241}
+  player: {fileID: 606799304}
+--- !u!65 &102022495
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 102022493}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 18, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &102022496
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 102022493}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.77, y: 0.56, z: 34}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 22
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &124828609
 GameObject:
   m_ObjectHideFlags: 0
@@ -2145,7 +2201,7 @@ GameObject:
   m_Component:
   - component: {fileID: 695626192}
   m_Layer: 0
-  m_Name: Mirror (1)
+  m_Name: HallMirror
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4841,7 +4897,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1533494090}
   m_Layer: 0
-  m_Name: Mirror
+  m_Name: JailMirror
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4954,19 +5010,40 @@ Prefab:
     - target: {fileID: 114636234621001208, guid: c9288942f5928d54791df234b24f4aae,
         type: 2}
       propertyPath: VR
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114937568143743854, guid: c9288942f5928d54791df234b24f4aae,
         type: 2}
       propertyPath: VR
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 65995418935394604, guid: c9288942f5928d54791df234b24f4aae,
         type: 2}
       propertyPath: m_Center.y
       value: -1.8
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 65399491347943126, guid: c9288942f5928d54791df234b24f4aae,
+        type: 2}
+      propertyPath: m_Size.x
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 65399491347943126, guid: c9288942f5928d54791df234b24f4aae,
+        type: 2}
+      propertyPath: m_Size.y
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 65399491347943126, guid: c9288942f5928d54791df234b24f4aae,
+        type: 2}
+      propertyPath: m_Size.z
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 65399491347943126, guid: c9288942f5928d54791df234b24f4aae,
+        type: 2}
+      propertyPath: m_Center.y
+      value: -1.5
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 65169552154363920, guid: c9288942f5928d54791df234b24f4aae, type: 2}
   m_ParentPrefab: {fileID: 100100000, guid: c9288942f5928d54791df234b24f4aae, type: 2}
   m_IsPrefabParent: 0
 --- !u!1 &1563707430

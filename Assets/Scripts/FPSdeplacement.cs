@@ -111,9 +111,9 @@ public class FPSdeplacement : MonoBehaviour {
 			}
 		}
 
-		if (!isGrounded) {
-			isMoving = true;
-		}
+		//if (!isGrounded) {
+		//	isMoving = true;
+		//}
 
 		if (isMoving == false) {
 			GetComponent<Rigidbody> ().velocity = Vector3.zero;
