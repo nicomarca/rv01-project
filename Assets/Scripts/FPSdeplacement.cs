@@ -20,7 +20,6 @@ public class FPSdeplacement : MonoBehaviour {
 	public bool VR;
 
 	private bool isMoving = false;
-	private bool isJumping = false;
 
 	private List<Rigidbody> collisions;
 
@@ -67,12 +66,6 @@ public class FPSdeplacement : MonoBehaviour {
 				isMoving = true;
 			}
 
-			if(Input.GetButtonDown ("Jump") && isGrounded) {
-				transform.GetComponent<Rigidbody>().AddForce(jump * jumpForce, ForceMode.Impulse);
-				isGrounded = false;
-				isJumping = true;
-			}
-
 		} else {
 			horizontalAngle = new Vector3 (0, transform.rotation.eulerAngles.y, 0);
 			horizontalQuat = Quaternion.Euler (horizontalAngle);
@@ -93,11 +86,6 @@ public class FPSdeplacement : MonoBehaviour {
 				transform.GetComponent<Rigidbody>().MovePosition(transform.position + horizontalQuat*Vector3.right * tSpeed);
 				isMoving = true;
 			}
-			if(Input.GetKeyDown(KeyCode.Space) && isGrounded){
-				transform.GetComponent<Rigidbody>().AddForce(jump * jumpForce, ForceMode.Impulse);
-				isGrounded = false;
-				isJumping = true;
-			}
 
 			if (Input.GetKey ("left")) {
 				transform.Rotate (Vector3.up, -rSpeed);
@@ -113,6 +101,16 @@ public class FPSdeplacement : MonoBehaviour {
 			}
 		}
 
+		if(Input.GetButtonDown ("Jump") && isGrounded) {
+			if (coroutine != null) {
+				StopCoroutine (coroutine);
+			}
+			transform.GetComponent<Rigidbody>().AddForce(jump * jumpForce, ForceMode.Impulse);
+			isGrounded = false;
+			coroutine = waitForEndOfJumps (3);
+			StartCoroutine (coroutine);
+		}
+
 		if (isGrounded == false) {
 			isMoving = true;
 		} 
@@ -123,17 +121,21 @@ public class FPSdeplacement : MonoBehaviour {
 			GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
 		}
 	}
-	/*
+
+
 	private IEnumerator waitForEndOfJumps(float x){
 		yield return new WaitForSeconds (x);
 		Vector3 rot = new Vector3(0, transform.rotation.eulerAngles.y, 0);
 		transform.rotation = Quaternion.Euler (rot);
 		isGrounded = true;
-	}*/
+	}
 
 
 	void OnTriggerEnter() {
 		isGrounded = true;
+		if (coroutine != null) {
+			StopCoroutine (coroutine);
+		}
 	}
 
 	void OnTriggerExit() {
@@ -153,7 +155,7 @@ public class FPSdeplacement : MonoBehaviour {
 
 	void OnCollisionExit(Collision collision){
 		/* freeze the player so he does not bump into objects */
-		if (!isJumping) {
+		if (isGrounded) {
 			GetComponent<Rigidbody> ().velocity = Vector3.zero;
 			GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
 		}
