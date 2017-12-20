@@ -72,7 +72,7 @@ public class RayCastingController : MonoBehaviour {
 		}
 
 		// If the user moves, attached object moves too if it exists ; relative size doesn't change
-		if (playerMoving (ray)) {
+		if (playerMoving ()) {
 			return;
 		}
 		// isMoving = false;
