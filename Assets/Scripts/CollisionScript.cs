@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class CollisionScript : MonoBehaviour {
 
-	// TODO: faire un tableau de Collision pour gérer les cas où plusieurs collisions en même temps
-	// Doit tenir le tableau à jour
-	// A la fin dans la fonction OnDestroy, parcourir toutes les collisions
-
 	private GameObject	fpsCharacter;					// First person character
 	private bool 		wasAlreadyFreeze = false;		// Boolean to know if the object was already frozen
 	private Collision	coll;							// Collision object
@@ -63,6 +59,7 @@ public class CollisionScript : MonoBehaviour {
 				fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (null);
 				// Cancel all the forces after a short time so that the objects don't move anymore
 				fpsCharacter.GetComponent<RayCastingController> ().preventMovingAfter (coll.gameObject.GetComponent<Rigidbody> (), 0.1f);
+				fpsCharacter.GetComponent<RayCastingController> ().preventMovingAfter (coll.gameObject.GetComponent<Rigidbody> (), 0.5f);
 				fpsCharacter.GetComponent<RayCastingController> ().preventMovingAfter (GetComponent<Rigidbody> (), 0.1f);
 			}
 		}
