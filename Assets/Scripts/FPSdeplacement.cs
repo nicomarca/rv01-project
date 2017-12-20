@@ -6,28 +6,23 @@ using UnityEngine.VR;
 
 public class FPSdeplacement : MonoBehaviour {
 
-	public float tSpeed;	// Translation speed
-	public float rSpeed;	// Rotation speed
-	public float jumpForce = 2.0f;
+	public float 			tSpeed;						// Translation speed
+	public float 			rSpeed;						// Rotation speed
+	public float 			jumpForce = 2.0f;			// Jump force
+	public bool 			isGrounded;					// Is the player on the ground
+	public bool 			VR;							// Is VR activated
+	public bool 			previouslyJumped;			// Is in the air because of a jump
+	public Vector3 			jump;						// Jump direction vector
 
+	private float 			maxSpeed;					// Maximum speed
+	private bool 			isMoving = false;			// Is the player moving
+	private List<Rigidbody> collisions;					// List of rigidbody which collided with the player
+	private IEnumerator 	coroutine;					// Coroutine to stop bad forces on the player
 
-	public Vector3 jump;
-	public bool isGrounded;
-
-
-	private float maxSpeed;
-
-	public bool VR;
-
-	private bool isMoving = false;
-
-	private List<Rigidbody> collisions;
-
-	private IEnumerator coroutine;
 
 	void Start () {
 		maxSpeed = tSpeed; // Limit the speed
-		jump = new Vector3(0.0f, 3.0f, 0.0f);
+		jump = new Vector3 (0.0f, 3.0f, 0.0f);
 		isGrounded = true;
 
 		collisions = new List<Rigidbody> ();
@@ -36,7 +31,6 @@ public class FPSdeplacement : MonoBehaviour {
 			GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.FreezeRotationX;
 			GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.FreezeRotationZ;
 		}
-
 	}
 	
 	void Update () {
@@ -45,8 +39,8 @@ public class FPSdeplacement : MonoBehaviour {
 		isMoving = false;
 
 		//if (VR){
-			Vector3 rot = new Vector3(0, transform.rotation.eulerAngles.y, 0);
-			transform.rotation = Quaternion.Euler (rot);
+		Vector3 rot = new Vector3 (0, transform.rotation.eulerAngles.y, 0);
+		transform.rotation = Quaternion.Euler (rot);
 		//}
 
 		if (tSpeed > maxSpeed)
@@ -60,7 +54,7 @@ public class FPSdeplacement : MonoBehaviour {
 			float mouvmentVertical = Input.GetAxis ("Vertical");
 
 			Vector3 mouvment = new Vector3 (mouvmentHorizontal, 0, mouvmentVertical);
-			transform.GetComponent<Rigidbody>().MovePosition(transform.position + horizontalQuat*mouvment * tSpeed);
+			transform.GetComponent<Rigidbody> ().MovePosition (transform.position + horizontalQuat * mouvment * tSpeed);
 
 			if (mouvment != Vector3.zero) {
 				isMoving = true;
@@ -71,19 +65,19 @@ public class FPSdeplacement : MonoBehaviour {
 			horizontalQuat = Quaternion.Euler (horizontalAngle);
 		
 			if (Input.GetKey ("z")) {
-				transform.GetComponent<Rigidbody>().MovePosition(transform.position + horizontalQuat*Vector3.forward * tSpeed);
+				transform.GetComponent<Rigidbody> ().MovePosition (transform.position + horizontalQuat * Vector3.forward * tSpeed);
 				isMoving = true;
 			}
 			if (Input.GetKey ("s")) {
-				transform.GetComponent<Rigidbody>().MovePosition(transform.position + horizontalQuat*Vector3.back * tSpeed);
+				transform.GetComponent<Rigidbody> ().MovePosition (transform.position + horizontalQuat * Vector3.back * tSpeed);
 				isMoving = true;
 			}
 			if (Input.GetKey ("q")) {
-				transform.GetComponent<Rigidbody>().MovePosition(transform.position + horizontalQuat*Vector3.left * tSpeed);
+				transform.GetComponent<Rigidbody> ().MovePosition (transform.position + horizontalQuat * Vector3.left * tSpeed);
 				isMoving = true;
 			}
 			if (Input.GetKey ("d")) {
-				transform.GetComponent<Rigidbody>().MovePosition(transform.position + horizontalQuat*Vector3.right * tSpeed);
+				transform.GetComponent<Rigidbody> ().MovePosition (transform.position + horizontalQuat * Vector3.right * tSpeed);
 				isMoving = true;
 			}
 
@@ -101,50 +95,49 @@ public class FPSdeplacement : MonoBehaviour {
 			}
 		}
 
-		if(Input.GetButtonDown ("Jump") && isGrounded) {
+		if (Input.GetButtonDown ("Jump") && isGrounded) {
 			if (coroutine != null) {
 				StopCoroutine (coroutine);
 			}
-			transform.GetComponent<Rigidbody>().AddForce(jump * jumpForce, ForceMode.Impulse);
+			transform.GetComponent<Rigidbody> ().AddForce (jump * jumpForce, ForceMode.Impulse);
 			isGrounded = false;
 			coroutine = waitForEndOfJumps (3);
 			StartCoroutine (coroutine);
+			previouslyJumped = true;
 		}
 
 		if (isGrounded == false) {
 			isMoving = true;
-		} 
-
-
-		else if (isMoving == false) {
+		} else if (isMoving == false) {
 			//GetComponent<Rigidbody> ().velocity = Vector3.zero;
 			GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
 		}
 	}
 
-
-	private IEnumerator waitForEndOfJumps(float x){
-		yield return new WaitForSeconds (x);
-		Vector3 rot = new Vector3(0, transform.rotation.eulerAngles.y, 0);
-		transform.rotation = Quaternion.Euler (rot);
-		isGrounded = true;
-	}
-
-
+	/**
+	 * When the collider at the feet of the player touches the ground
+	**/
 	void OnTriggerEnter() {
 		isGrounded = true;
+		previouslyJumped = false;
 		if (coroutine != null) {
 			StopCoroutine (coroutine);
 		}
 	}
 
+	/**
+	 * When the collider at the feet of the player stops touching the ground
+	**/
 	void OnTriggerExit() {
 		isGrounded = false;
 	}
 
-
+	/**
+	 * Collision Enter of the player and other objects
+	 * Freeze other objects position
+	**/
 	void OnCollisionEnter(Collision collision){
-		/* prevent objects from moving when collision with player */
+		// prevent objects from moving when collision with player
 		if (collision.gameObject.GetComponent<Rigidbody> () != null) {
 			if (!collisions.Contains (collision.gameObject.GetComponent<Rigidbody> ())) {
 				collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.FreezeAll;
@@ -153,17 +146,36 @@ public class FPSdeplacement : MonoBehaviour {
 		}
 	}
 
+	/**
+	 * Collision Exit of the player and other objects
+	 * 
+	**/
 	void OnCollisionExit(Collision collision){
-		/* freeze the player so he does not bump into objects */
+		// freeze the player so he does not bump into objects
 		if (isGrounded) {
 			GetComponent<Rigidbody> ().velocity = Vector3.zero;
 			GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
 		}
-
-		/* unfreeze the frozen objetcs colliding with player */
+		if (isGrounded == false && previouslyJumped == false) {
+			GetComponent<Rigidbody> ().velocity = Vector3.zero;
+			GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
+		}
+		// unfreeze the frozen objetcs colliding with player
 		if (collision.transform.GetComponent<Rigidbody> () != null) {
 			collisions.Remove (collision.gameObject.GetComponent<Rigidbody> ());
 			collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.None;
 		}
+	}
+
+
+	/**
+	 * Timer to resets variables if problems occures
+	**/
+	private IEnumerator waitForEndOfJumps(float x){
+		yield return new WaitForSeconds (x);
+		Vector3 rot = new Vector3(0, transform.rotation.eulerAngles.y, 0);
+		transform.rotation = Quaternion.Euler (rot);
+		isGrounded = true;
+		previouslyJumped = false;
 	}
 }

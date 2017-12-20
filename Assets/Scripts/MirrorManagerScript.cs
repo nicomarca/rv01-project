@@ -9,7 +9,7 @@ public class MirrorManagerScript : MonoBehaviour {
 	private GameObject instantiateComparatorObject; // Instance of the comparator object
 	private Vector3 comparatorObjectSize;			// Size of the comparator object
 	private float distanceToObj;					// Distance between mirror and reference object
-	private float distanceToPlayer = 10.0f;					// Distance between mirror and player
+	private float distanceToPlayer = 10.0f;			// Distance between mirror and player
 	private float size;								// Player size
 	public float playerRatio;
 	
@@ -62,11 +62,11 @@ public class MirrorManagerScript : MonoBehaviour {
 				} else if (distanceToPlayer < 17.9) {
 					ratio = 0.42f;
 					return ratio;
-				} else if (distanceToPlayer < 22 ){
+				} else if (distanceToPlayer < 22) {
 					ratio = 0.28f;
 					return ratio;
 				} else {
-					ratio =  0.28f;
+					ratio = 0.28f;
 					return ratio;
 				}
 			} else {
@@ -113,7 +113,6 @@ public class MirrorManagerScript : MonoBehaviour {
 
 	// TODO
 	public float newPlayerSize(){
-
 		float newRatioPlayerObject = newRatio ();
 		float oldRatioPlayer = playerRatio;
 		playerRatio *= newRatioPlayerObject;
@@ -125,7 +124,7 @@ public class MirrorManagerScript : MonoBehaviour {
 			} else {
 				return newRatioPlayerObject;
 			}
-		}else {
+		} else {
 			if ((playerRatio <= 0.15f && playerRatio < oldRatioPlayer) || (playerRatio > 5.0f && playerRatio > oldRatioPlayer)) {
 				playerRatio = oldRatioPlayer;
 				return 1.0f;
@@ -134,7 +133,6 @@ public class MirrorManagerScript : MonoBehaviour {
 			}
 		}
 		return newRatioPlayerObject;
-	
 	}
 
 }

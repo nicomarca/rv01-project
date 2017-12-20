@@ -12,22 +12,22 @@ using UnityEngine.VR;
 
 public class JailScenarioScript : MonoBehaviour {
 
-	public Light light;
-	public GameObject displayedWand;
-	public GameObject playerWand;
-	public GameObject stick;
-	public GameObject player;
+	public Light 			light;
+	public GameObject 		displayedWand;
+	public GameObject 		playerWand;
+	public GameObject 		stick;
+	public GameObject 		player;
 
-	public AudioClip introVoice;
-	private AudioSource introVoiceSource;
+	public AudioClip 		introVoice;
+	private AudioSource 	introVoiceSource;
 
-	public AudioClip instructionWand;
-	private AudioSource instructionWandSource;
+	public AudioClip 		instructionWand;
+	private AudioSource 	instructionWandSource;
 
-	private float timer;
-	private bool flashDone = false;
-	private bool flashStabilized = false;
-	private bool wandTaken = false;
+	private float 			timer;
+	private bool 			flashDone 		= false;
+	private bool 			flashStabilized = false;
+	private bool 			wandTaken 		= false;
 
 	void Start () {
 		timer = 0.0f;
@@ -39,13 +39,11 @@ public class JailScenarioScript : MonoBehaviour {
 
 	void Update () {
 		timer += Time.deltaTime;
-
 		flashLight ();
 
 		// Checks if the user is trying to grab the wand
 		if (!wandTaken){
 			if (Input.GetMouseButtonDown (0) || Input.GetButtonDown ("Grab")){
-
 				// If the player can grab it, activate the real wand, the raycasting script, and hide the other objects
 				if (Vector3.Distance (displayedWand.transform.position, stick.transform.position) < 2.5f) {
 					displayedWand.SetActive (false);
@@ -69,14 +67,12 @@ public class JailScenarioScript : MonoBehaviour {
 				light.intensity += 3.0f;
 				if (light.intensity > 12) {
 					flashDone = true;
-
 					// Makes the wand appear
 					displayedWand.SetActive (true);
-
 					// Unfreeze the player
-					player.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.None;				}
-			} 
-
+					player.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.None;
+				}
+			}
 			// Decrease the light intensity to 3
 			else {
 				if (!flashStabilized) {
@@ -86,13 +82,10 @@ public class JailScenarioScript : MonoBehaviour {
 					}
 				}
 			}
-
 		}
 	}
 
-	private AudioSource CreateSource(AudioClip clip)
-	{
-
+	private AudioSource CreateSource(AudioClip clip) {
 		AudioSource source = gameObject.AddComponent<AudioSource> ();
 		source.playOnAwake = false;
 		source.clip = clip;
