@@ -13,7 +13,7 @@ public class CollisionScript : MonoBehaviour {
 	private Collision	coll;							// Collision object
 
 	void Start () {
-		fpsCharacter = GameObject.Find ("NewPlayer");
+		fpsCharacter = GameObject.Find ("Player");
 	}
 	
 	void Update () {
@@ -30,7 +30,7 @@ public class CollisionScript : MonoBehaviour {
 				wasAlreadyFreeze = true;
 			} else {
 				collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.FreezeAll;
-				fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (collision);
+				// fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (collision);
 				wasAlreadyFreeze = false;
 			}
 		}
@@ -46,7 +46,7 @@ public class CollisionScript : MonoBehaviour {
 			if (!wasAlreadyFreeze) {
 				collision.gameObject.GetComponent<Rigidbody> ().constraints = RigidbodyConstraints.None;
 			}
-			fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (null);
+			// fpsCharacter.GetComponent<RayCastingController> ().setAttachedObjectCollision (null);
 		}
 	}
 

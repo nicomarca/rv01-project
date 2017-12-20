@@ -7,10 +7,10 @@ using System.Collections.Generic;
 public class RayCastingController : MonoBehaviour {
 	
 	private const int 		RAYCASTLENGTH 				= 1000;								// Length of the ray
+	private const float 	MOVE_TORWARDS_CONST			= 1000.0f;							// Const for MoveTorwards
 	private const string 	SHADER_OUTLINED_DIFFUSE 	= "Self-Illumin/Outlined Diffuse";	// Shader Outlined diffuse
 	private const string 	SHADER_STANDARD 			= "Standard";						// Standard Shader
 
-	private float 			distanceToObj;				// Distance between player and seased object
 	private float 			ratio;						// Ratio between the distances
 	private float 			newSizeY;					// New vertical size of the moved object
 	private bool 			rotationIsFinished;			// Is the first rotation finished
@@ -44,7 +44,6 @@ public class RayCastingController : MonoBehaviour {
 
 
 	void Start () {
-		distanceToObj = -1;
 		attachedObjectCollision = null;
 		lazer.GetComponent<Renderer> ().material = lazerOff;
 		lazer.GetComponent<AudioSource> ().enabled = false;
@@ -68,9 +67,10 @@ public class RayCastingController : MonoBehaviour {
 		}
 
 		// If the user moves, attached object moves too if it exists ; relative size doesn't change
-		if (playerMoving ()) {
+		if (playerMoving (ray)) {
 			return;
 		}
+		// isMoving = false;
 
 		/**** THE USER CLICKS ***/
 		if ((Input.GetMouseButtonDown (0) || Input.GetButtonDown ("Grab")) && attachedObject == null) {
@@ -78,7 +78,6 @@ public class RayCastingController : MonoBehaviour {
 				objectFirstPlane = firstHit;
 				attachedObject = objectFirstPlane.rigidbody;
 				attachedObject.isKinematic = true;
-				distanceToObj = objectFirstPlane.distance;
 				applyShader (SHADER_OUTLINED_DIFFUSE);
 				applyShadow (UnityEngine.Rendering.ShadowCastingMode.Off);
 				attachedObject.gameObject.AddComponent<CollisionScript> ();
@@ -128,7 +127,7 @@ public class RayCastingController : MonoBehaviour {
 					// 3rd case : the ray goes through the object and then throw a second object (tower for exemple)
 					else if (hitInfo [0].transform.gameObject.GetInstanceID () == attachedObject.gameObject.GetInstanceID ()) {
 						if (hitInfo [1].transform.tag == "bordure") {
-							moveObjectAgainst (ray, hitInfo [0].transform.gameObject.transform.position, new Axis (false, false, false));
+							moveObjectAgainst (ray, hitInfo [0].transform.position, new Axis (false, false, false));
 						} else {
 							moveObjectAgainst (ray, hitInfo [1].point, new Axis (false, false, true));
 						}
@@ -136,7 +135,7 @@ public class RayCastingController : MonoBehaviour {
 					// 4th case : an object is between us and the attachedObject
 					else if (hitInfo [0].transform.gameObject.GetInstanceID () != attachedObject.gameObject.GetInstanceID ()
 					         && hitInfo [1].transform.gameObject.GetInstanceID () == attachedObject.gameObject.GetInstanceID ()) {
-						moveObjectAgainst (ray, hitInfo [0].point, new Axis (false, false, false), false);
+						moveObjectAgainst (ray, hitInfo [0].point, new Axis (false, false, false), true);
 					}
 					// Other unidentified cases (offset in our direction)
 					else {
@@ -223,9 +222,8 @@ public class RayCastingController : MonoBehaviour {
 		if (teleport) {
 			attachedObject.transform.position = newPosition;
 		} else {
-			attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, newPosition, 1000.0f);
+			attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, newPosition, MOVE_TORWARDS_CONST);
 		}
-
 		if (attachedObject.transform.position == newPosition) {
 			attachedObject.transform.localScale = new Vector3 (objectSizeInitial.x, objectSizeInitial.y, objectSizeInitial.z) * ratio;
 		} else {
@@ -264,6 +262,11 @@ public class RayCastingController : MonoBehaviour {
 			newRot.z = 0;
 			attachedObject.transform.rotation = Quaternion.Euler (newRot);
 		}
+	}
+
+	private void setAttachedMovingObjectOrientation () {
+		Vector3 newRot = wand.transform.rotation.eulerAngles;
+		attachedObject.transform.rotation = Quaternion.Euler (newRot);
 	}
 
 	/**
@@ -364,12 +367,41 @@ public class RayCastingController : MonoBehaviour {
 			return false;
 		} else {
 			if (attachedObject != null) {
-				attachedObject.MovePosition (attachedObject.transform.position + transform.position - oldPlayerPos);
+				attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, attachedObject.transform.position + transform.position - oldPlayerPos, MOVE_TORWARDS_CONST);
 			}
 			oldPlayerPos = transform.position;
 			return true;
 		}
 	}
+
+	/*
+	private bool playerMoving(Ray ray) {
+		if (transform.position == oldPlayerPos) {
+			return false;
+		} else {
+			if (attachedObject != null) {
+				float diff = attachedObject.transform.position.y - attachedObject.transform.lossyScale.y / 2;
+				if (diff < 0.1f && diff > -0.1f) {
+					attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, attachedObject.transform.position + transform.position - oldPlayerPos, MOVE_TORWARDS_CONST);
+				} else {
+					setAttachedMovingObjectOrientation ();
+					if (isMoving == false) {
+						distanceToMovingObj = Vector3.Distance (transform.position, attachedObject.transform.position);
+					}
+					Vector3 newPosition = ray.origin + ray.direction * distanceToMovingObj;
+					newPosition += transform.position - oldPlayerPos;
+					if (newPosition.y < attachedObject.transform.lossyScale.y / 2f) {
+						newPosition.y = attachedObject.transform.lossyScale.y / 2f;
+					}
+					attachedObject.transform.position = Vector3.MoveTowards (attachedObject.transform.position, newPosition, MOVE_TORWARDS_CONST);
+				}
+				isMoving = true;
+			}
+			oldPlayerPos = transform.position;
+			return true;
+		}
+	}
+	*/
 
 	/**
 	 * setAttachedObjectCollision is used to set the collision when attached object hits another object
@@ -409,9 +441,7 @@ public class RayCastingController : MonoBehaviour {
 	 * stays still
 	**/
 	private IEnumerator preventMovingCoroutine(Rigidbody rb, float x){
-		Debug.Log ("Waiting ...");
 		yield return new WaitForSeconds (x);
-		Debug.Log ("Stopped waiting");
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
 	}
