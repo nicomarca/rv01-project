@@ -2446,6 +2446,8 @@ MonoBehaviour:
   playerWand: {fileID: 609162283}
   stick: {fileID: 2034253806}
   player: {fileID: 606799304}
+  introVoice: {fileID: 8300000, guid: 45760aef1aeac4b05bcca73708f67fdb, type: 3}
+  instructionWand: {fileID: 8300000, guid: ffacb56d9dda54cb1ba9b9402d1b8444, type: 3}
 --- !u!1 &831819190
 GameObject:
   m_ObjectHideFlags: 0
