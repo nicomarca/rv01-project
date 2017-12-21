@@ -9,7 +9,7 @@ public class MirrorManagerScript : MonoBehaviour {
 	private GameObject instantiateComparatorObject; // Instance of the comparator object
 	private Vector3 comparatorObjectSize;			// Size of the comparator object
 	private float distanceToObj;					// Distance between mirror and reference object
-	private float distanceToPlayer = 10.0f;			// Distance between mirror and player
+	private float distanceToPlayer = 10.0f;					// Distance between mirror and player
 	private float size;								// Player size
 	public float playerRatio;
 	
@@ -25,8 +25,8 @@ public class MirrorManagerScript : MonoBehaviour {
 	void Update () {
 		distanceToObj = Vector3.Distance (transform.parent.position - new Vector3 (0, transform.parent.position.y, 0), instantiateComparatorObject.transform.position - new Vector3 (0, instantiateComparatorObject.transform.position.y, 0));
 		distanceToPlayer = Vector3.Distance (transform.parent.position - new Vector3 (0, transform.parent.position.y, 0), player.transform.position - new Vector3 (0, player.transform.position.y, 0));
-		//Debug.Log ("Distance to Obj :" + distanceToObj);
-		//Debug.Log ("distanceToPlayer:" + distanceToPlayer);
+		Debug.Log ("Distance to Obj :" + distanceToObj);
+		Debug.Log ("distanceToPlayer:" + distanceToPlayer);
 
 	}
 
@@ -44,7 +44,7 @@ public class MirrorManagerScript : MonoBehaviour {
 	private float newRatio()
 	{
 		float ratio = 1.0f;							// Ratio between size and comparator size
-		if (SceneManager.GetActiveScene ().name == "JailScene") {
+		if (SceneManager.GetActiveScene ().name == "JailScene" || SceneManager.GetActiveScene ().name == "MainScene") {
 			if (distanceToPlayer < 23) {
 
 				if (distanceToPlayer < 3.5) {
@@ -56,17 +56,20 @@ public class MirrorManagerScript : MonoBehaviour {
 				} else if (distanceToPlayer < 8.9) {
 					ratio = 1.0f;
 					return ratio;
+				} else if (distanceToPlayer < 12) {
+					ratio = 0.85f;
+					return ratio;
 				} else if (distanceToPlayer < 14.3) {
 					ratio = 0.57f;
 					return ratio;
 				} else if (distanceToPlayer < 17.9) {
 					ratio = 0.42f;
 					return ratio;
-				} else if (distanceToPlayer < 22) {
+				} else if (distanceToPlayer < 22 ){
 					ratio = 0.28f;
 					return ratio;
 				} else {
-					ratio = 0.28f;
+					ratio =  0.28f;
 					return ratio;
 				}
 			} else {
@@ -113,10 +116,11 @@ public class MirrorManagerScript : MonoBehaviour {
 
 	// TODO
 	public float newPlayerSize(){
+
 		float newRatioPlayerObject = newRatio ();
 		float oldRatioPlayer = playerRatio;
 		playerRatio *= newRatioPlayerObject;
-		if (SceneManager.GetActiveScene ().name == "JailScene") {
+		if (SceneManager.GetActiveScene ().name == "JailScene" || SceneManager.GetActiveScene ().name == "MainScene") {
 			
 			if ((playerRatio <= 0.15f && playerRatio < oldRatioPlayer) || (playerRatio > 3.0f && playerRatio > oldRatioPlayer)) {
 				playerRatio = oldRatioPlayer;
@@ -124,7 +128,7 @@ public class MirrorManagerScript : MonoBehaviour {
 			} else {
 				return newRatioPlayerObject;
 			}
-		} else {
+		}else {
 			if ((playerRatio <= 0.15f && playerRatio < oldRatioPlayer) || (playerRatio > 5.0f && playerRatio > oldRatioPlayer)) {
 				playerRatio = oldRatioPlayer;
 				return 1.0f;
@@ -133,6 +137,7 @@ public class MirrorManagerScript : MonoBehaviour {
 			}
 		}
 		return newRatioPlayerObject;
+	
 	}
 
 }
