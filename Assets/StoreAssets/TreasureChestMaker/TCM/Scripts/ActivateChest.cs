@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
+
 
 public class ActivateChest : MonoBehaviour {
 
@@ -13,7 +15,9 @@ public class ActivateChest : MonoBehaviour {
 	public GameObject player;  						// Player
 
 	void Start(){
-		_open = true;
+		if (SceneManager.GetActiveScene ().name == "MainScene back") {
+			_open = true;
+		}
 	}
 
 	void Update () {
