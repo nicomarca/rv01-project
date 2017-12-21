@@ -64,7 +64,7 @@ public class FpsAudioScript : MonoBehaviour {
 		//Debug.Log ("OUI : " + (Time.time - time));
 		// pick & play a random footstep sound from the array,
 		int n = Random.Range(0, 4);
-		Debug.Log (n);
+		//Debug.Log (n);
 		m_AudioSource.clip = m_FootstepSounds[n];
 		m_AudioSource.PlayOneShot(m_AudioSource.clip);
 		// move picked sound to index 0 so it's not picked next time
