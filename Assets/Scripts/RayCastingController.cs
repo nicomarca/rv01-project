@@ -35,6 +35,7 @@ public class RayCastingController : MonoBehaviour {
 	public GameObject	particleWand;
 	public GameObject	portal;							//portal to the other world
 
+	private bool mirrorCasted, chestCasted, orbeCasted, portalCasted, wandCasted;
 
 	private struct Axis {
 		public bool x;
@@ -66,10 +67,11 @@ public class RayCastingController : MonoBehaviour {
 		Ray ray = new Ray (wand.transform.position, wand.transform.up);
 		Debug.DrawRay (ray.origin, ray.direction * RAYCASTLENGTH, Color.blue);
 		bool rayCasted = Physics.Raycast (ray, out firstHit, RAYCASTLENGTH);
-		bool mirrorCasted = false;
-		bool chestCasted = false;
-		bool orbeCasted = false;
-		bool portalCasted = false;
+		mirrorCasted = false;
+		chestCasted = false;
+		orbeCasted = false;
+		portalCasted = false;
+		wandCasted = false;
 
 		if (rayCasted) {
 			rayCasted = firstHit.transform.CompareTag ("draggable");
@@ -77,9 +79,7 @@ public class RayCastingController : MonoBehaviour {
 			chestCasted = firstHit.transform.CompareTag ("chest");
 			orbeCasted = firstHit.transform.CompareTag ("orbe");
 			portalCasted = firstHit.transform.CompareTag ("portal");
-
-
-
+			wandCasted = firstHit.transform.CompareTag ("wand");
 		}
 
 		// If the user moves, attached object moves too if it exists ; relative size doesn't change
@@ -199,7 +199,7 @@ public class RayCastingController : MonoBehaviour {
 
 		/*** THE USER IS MOVING THE MOUSE WITHOUT CLICKING ***/
 		else {
-			if (mirrorCasted || chestCasted || portalCasted || orbeCasted) {
+			if (mirrorCasted || chestCasted || portalCasted || orbeCasted || wandCasted) {
 				lazer.GetComponent<Renderer> ().material = lazerMirror;
 			} else if (rayCasted) {
 				lazer.GetComponent<Renderer> ().material = lazerOK;
@@ -480,6 +480,10 @@ public class RayCastingController : MonoBehaviour {
 		yield return new WaitForSeconds (x);
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
+	}
+
+	public bool IsWandCasted(){
+		return wandCasted;
 	}
 }
 
