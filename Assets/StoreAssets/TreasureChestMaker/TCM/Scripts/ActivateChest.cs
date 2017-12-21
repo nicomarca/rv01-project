@@ -24,8 +24,11 @@ public class ActivateChest : MonoBehaviour {
 		distanceToPlayer = Vector3.Distance (transform.position - new Vector3 (0, transform.position.y, 0), player.transform.position - new Vector3 (0, player.transform.position.y, 0));
 
 		if(_open){
+
 			ChestClicked(lidOpen.rotation);
 			orbe.SetActive (true);
+			_open = false;
+
 
 		}
 		else{
@@ -53,8 +56,7 @@ public class ActivateChest : MonoBehaviour {
 				_open = true;
 			} else {
 			
-				//TODO VOICE
-				Debug.Log("trop petite");
+				player.GetComponent<voiceManagerMainScene> ().PlayKeyNotEnoughBig();
 			}
 		}
 	}
