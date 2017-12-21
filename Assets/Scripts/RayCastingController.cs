@@ -121,7 +121,7 @@ public class RayCastingController : MonoBehaviour {
 					portal.SetActive (true);
 				} 
 				else {
-					//TODO piste audio
+					gameObject.GetComponent<voiceManagerMainScene> ().PlayMagicTooWeek ();
 				}
 			}
 

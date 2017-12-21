@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEditor.SceneManagement;
 
 public class PortalScript : MonoBehaviour {
 
@@ -23,7 +22,7 @@ public class PortalScript : MonoBehaviour {
 				SceneManager.LoadScene ("Assets/Scenes/Sewer.unity", LoadSceneMode.Single);
 			} else if (SceneManager.GetActiveScene ().name == "Sewer") {
 			
-				SceneManager.LoadScene ("Assets/Scenes/MainScene.unity", LoadSceneMode.Single);
+				SceneManager.LoadScene ("Assets/Scenes/MainScene back.unity", LoadSceneMode.Single);
 
 			}
 			/*if (Application.isEditor) {

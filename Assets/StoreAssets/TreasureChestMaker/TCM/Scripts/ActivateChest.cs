@@ -27,8 +27,6 @@ public class ActivateChest : MonoBehaviour {
 
 			ChestClicked(lidOpen.rotation);
 			orbe.SetActive (true);
-			_open = false;
-
 
 		}
 		else{

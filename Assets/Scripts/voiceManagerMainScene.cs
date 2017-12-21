@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class voiceManagerMainScene : MonoBehaviour {
 
 	public bool mute;
@@ -10,7 +11,7 @@ public class voiceManagerMainScene : MonoBehaviour {
 	private AudioSource 	introMainSceneSource;
 
 	public AudioClip 		chestInstruction;
-	private AudioSource 	chestInstructionSource;
+	private AudioSource 	    chestInstructionSource;
 
 	public AudioClip 		enigma;
 	private AudioSource 	enigmaSource;
@@ -21,6 +22,9 @@ public class voiceManagerMainScene : MonoBehaviour {
 	public AudioClip 		magicTooWeek;
 	private AudioSource 	magicTooWeekSource;
 
+	private IEnumerator 	coroutine;					
+
+
 	// Use this for initialization
 	void Start () {
 
@@ -28,6 +32,7 @@ public class voiceManagerMainScene : MonoBehaviour {
 		chestInstructionSource = CreateSource (chestInstruction);
 		keyNotEnoughBigSource = CreateSource (keyNotEnoughBig);
 		magicTooWeekSource = CreateSource (magicTooWeek);
+		enigmaSource = CreateSource (enigma);
 		PlayIntroMainScene ();
 
 
@@ -59,6 +64,9 @@ public class voiceManagerMainScene : MonoBehaviour {
 	{
 		if (!mute) {
 			chestInstructionSource.Play ();
+			coroutine = waitEndAudio (chestInstructionSource.clip.length + 2);
+			StartCoroutine (coroutine);
+
 		}
 	}
 
@@ -69,11 +77,17 @@ public class voiceManagerMainScene : MonoBehaviour {
 		}
 	}
 
-	void PlayMagicTooWeek()
+	public void PlayMagicTooWeek()
 	{
 		if (!mute) {
 			magicTooWeekSource.Play ();
 		}
+	}
+
+	private IEnumerator waitEndAudio(float x){
+		yield return new WaitForSeconds (x);
+		enigmaSource.Play ();
+
 	}
 		
 
