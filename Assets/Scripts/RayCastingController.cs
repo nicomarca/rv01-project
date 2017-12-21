@@ -23,6 +23,7 @@ public class RayCastingController : MonoBehaviour {
 	private Vector3			desiredRotationVector;		// Rotation of the attached object so it faces the camera
 	private List<Transform> listOfObjectToShader;		// List of sub-objects to shader for a given object
 	private List<Transform> listOfObjectToShadow;		// List of sub-objects to shadow for a given object
+	private bool			isEvoluted;
 
 	public Material 	lazerOff, lazerOK;				// Lazer colors
 	public Material		lazerOn,  lazerMirror;	 		// Lazer colors
@@ -30,6 +31,10 @@ public class RayCastingController : MonoBehaviour {
 	public GameObject	wand;							// wand in the right hand of the user
 	public GameObject	mirrorManager;					// mirror manager to change player size
 	public GameObject 	finalChest;
+	public GameObject	orbe; 							//orbe to be able to create portal
+	public GameObject	particleWand;
+	public GameObject	portal;							//portal to the other world
+
 
 	private struct Axis {
 		public bool x;
@@ -50,6 +55,7 @@ public class RayCastingController : MonoBehaviour {
 		lazer.GetComponent<AudioSource> ().enabled = false;
 		oldPlayerPos = transform.position;
 		previousShader = null;
+		isEvoluted = false;
 	}
 
 	void Update () {
@@ -62,11 +68,16 @@ public class RayCastingController : MonoBehaviour {
 		bool rayCasted = Physics.Raycast (ray, out firstHit, RAYCASTLENGTH);
 		bool mirrorCasted = false;
 		bool chestCasted = false;
+		bool orbeCasted = false;
+		bool portalCasted = false;
 
 		if (rayCasted) {
 			rayCasted = firstHit.transform.CompareTag ("draggable");
 			mirrorCasted = firstHit.transform.CompareTag ("mirror");
 			chestCasted = firstHit.transform.CompareTag ("chest");
+			orbeCasted = firstHit.transform.CompareTag ("orbe");
+			portalCasted = firstHit.transform.CompareTag ("portal");
+
 
 
 		}
@@ -96,9 +107,24 @@ public class RayCastingController : MonoBehaviour {
 				GetComponent<FPSdeplacement> ().tSpeed *= ratioNewPlayerSize;
 			} else if (chestCasted) {
 				objectFirstPlane = firstHit;
-				objectFirstPlane.transform.GetComponent<ActivateChest> ()._open = true;
+				//objectFirstPlane.transform.GetComponent<ActivateChest> ()._open = true;
 
 			}
+			else if (orbeCasted) {
+				objectFirstPlane = firstHit;
+				particleWand.SetActive (true);
+				isEvoluted = true;
+				Destroy (orbe);
+			}
+			else if (portalCasted) {
+				if (isEvoluted) {
+					portal.SetActive (true);
+				} 
+				else {
+					//TODO piste audio
+				}
+			}
+
 
 		}
 		/*** THE USER CLICKS AGAIN (RELEASES THE OBJECT) ***/
@@ -173,7 +199,7 @@ public class RayCastingController : MonoBehaviour {
 
 		/*** THE USER IS MOVING THE MOUSE WITHOUT CLICKING ***/
 		else {
-			if (mirrorCasted || chestCasted) {
+			if (mirrorCasted || chestCasted || portalCasted || orbeCasted) {
 				lazer.GetComponent<Renderer> ().material = lazerMirror;
 			} else if (rayCasted) {
 				lazer.GetComponent<Renderer> ().material = lazerOK;
