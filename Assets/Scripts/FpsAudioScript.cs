@@ -20,9 +20,9 @@ public class FpsAudioScript : MonoBehaviour {
 	void Start () {
 		m_FootstepSounds = new AudioClip[4];
 		m_FootstepSounds[0] =  m_FootstepSound_1;
-		m_FootstepSounds[0] =  m_FootstepSound_2;
-		m_FootstepSounds[0] =  m_FootstepSound_3;
-		m_FootstepSounds[0] =  m_FootstepSound_4;
+		m_FootstepSounds[1] =  m_FootstepSound_2;
+		m_FootstepSounds[2] =  m_FootstepSound_3;
+		m_FootstepSounds[3] =  m_FootstepSound_4;
 		m_AudioSource = GetComponent<AudioSource>();
 
 		time = Time.time;
@@ -49,8 +49,9 @@ public class FpsAudioScript : MonoBehaviour {
 
 	public void PlayFootStepAudio(bool isGrounded, bool isMoving)
 	{
+		//Debug.Log (Time.time);
 
-		if (Time.time - time < 0.2)
+		if (Time.time - time <= 0.4)
 		{
 			return;
 		}
@@ -59,9 +60,11 @@ public class FpsAudioScript : MonoBehaviour {
 		{
 			return;
 		}
+
+		//Debug.Log ("OUI : " + (Time.time - time));
 		// pick & play a random footstep sound from the array,
-		// excluding sound at index 0
-		int n = Random.Range(0, m_FootstepSounds.Length);
+		int n = Random.Range(0, 4);
+		Debug.Log (n);
 		m_AudioSource.clip = m_FootstepSounds[n];
 		m_AudioSource.PlayOneShot(m_AudioSource.clip);
 		// move picked sound to index 0 so it's not picked next time

@@ -114,7 +114,9 @@ public class FPSdeplacement : MonoBehaviour {
 			//GetComponent<Rigidbody> ().velocity = Vector3.zero;
 			GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
 		}
+	}
 
+	void FixedUpdate (){
 		GetComponent<FpsAudioScript> ().PlayFootStepAudio (isGrounded, isMoving);
 	}
 

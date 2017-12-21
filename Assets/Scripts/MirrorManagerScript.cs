@@ -25,8 +25,8 @@ public class MirrorManagerScript : MonoBehaviour {
 	void Update () {
 		distanceToObj = Vector3.Distance (transform.parent.position - new Vector3 (0, transform.parent.position.y, 0), instantiateComparatorObject.transform.position - new Vector3 (0, instantiateComparatorObject.transform.position.y, 0));
 		distanceToPlayer = Vector3.Distance (transform.parent.position - new Vector3 (0, transform.parent.position.y, 0), player.transform.position - new Vector3 (0, player.transform.position.y, 0));
-		Debug.Log ("Distance to Obj :" + distanceToObj);
-		Debug.Log ("distanceToPlayer:" + distanceToPlayer);
+		//Debug.Log ("Distance to Obj :" + distanceToObj);
+		//Debug.Log ("distanceToPlayer:" + distanceToPlayer);
 
 	}
 
