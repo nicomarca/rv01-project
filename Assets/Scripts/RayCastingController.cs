@@ -55,7 +55,7 @@ public class RayCastingController : MonoBehaviour {
 		lazer.GetComponent<AudioSource> ().enabled = false;
 		oldPlayerPos = transform.position;
 		previousShader = null;
-		isEvoluted = false;
+		isEvoluted = true;
 	}
 
 	void Update () {

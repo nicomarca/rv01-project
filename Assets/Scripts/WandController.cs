@@ -8,7 +8,8 @@ public class WandController : MonoBehaviour
 	public bool VR;
 	public Vector3 old_position;
 	public Quaternion old_rotation;
-	// Use this for initialization
+	public GameObject cam;
+
 	void Start ()
 	{
 		old_position = transform.localPosition;
@@ -17,16 +18,16 @@ public class WandController : MonoBehaviour
 	
 	void Update () {
 		if (VR) {
-			Debug.Log("Controller pos : " + InputTracking.GetLocalPosition(VRNode.RightHand));
-			Debug.Log("Camera pos : " + InputTracking.GetLocalPosition(VRNode.Head));
 			transform.localPosition = old_position+ InputTracking.GetLocalPosition (VRNode.RightHand);
 			transform.localRotation = old_rotation* InputTracking.GetLocalRotation (VRNode.RightHand);
-			//transform.Rotate(new Vector3(90, 0, 0));
 		} else {
-			Vector3 targetDir = Camera.main.ScreenToWorldPoint (new Vector3 (Input.mousePosition.x + 10, Input.mousePosition.y, 10f)) - transform.position;
+			//position
+			transform.localPosition = new Vector3 (cam.transform.localPosition.x + 0.7f, cam.transform.localPosition.y - 0.4f, cam.transform.localPosition.z + 1f);
+
+			// rotation
+			Vector3 targetDir = Camera.main.ScreenToWorldPoint (new Vector3(Input.mousePosition.x + 10, Input.mousePosition.y, 10f)) - transform.position;
 			Vector3 newDir = Vector3.RotateTowards (transform.forward, targetDir, 100, 0.0f);
 			transform.rotation = Quaternion.LookRotation (newDir);
-			transform.Rotate (new Vector3 (90, 0, 0));
 		}
 	}
 }
