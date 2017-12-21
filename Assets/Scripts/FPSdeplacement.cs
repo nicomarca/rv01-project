@@ -104,6 +104,8 @@ public class FPSdeplacement : MonoBehaviour {
 			coroutine = waitForEndOfJumps (3);
 			StartCoroutine (coroutine);
 			previouslyJumped = true;
+
+			GetComponent<FpsAudioScript> ().PlayJumpSound ();
 		}
 
 		if (isGrounded == false) {
@@ -112,6 +114,8 @@ public class FPSdeplacement : MonoBehaviour {
 			//GetComponent<Rigidbody> ().velocity = Vector3.zero;
 			GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
 		}
+
+		GetComponent<FpsAudioScript> ().PlayFootStepAudio (isGrounded, isMoving);
 	}
 
 	/**
@@ -119,9 +123,18 @@ public class FPSdeplacement : MonoBehaviour {
 	**/
 	void OnTriggerEnter() {
 		isGrounded = true;
-		previouslyJumped = false;
+		if (previouslyJumped == true) {
+			previouslyJumped = false;
+			GetComponent<FpsAudioScript> ().PlayLandingSound ();
+		}
 		if (coroutine != null) {
 			StopCoroutine (coroutine);
+		}
+	}
+
+	void OnTriggerStay(){
+		if (!previouslyJumped) {
+			isGrounded = true;
 		}
 	}
 
