@@ -13,6 +13,9 @@ TagManager:
   - projectile
   - wand
   - chest
+  - Fire
+  - orbe
+  - portal
   layers:
   - Default
   - TransparentFX
