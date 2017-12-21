@@ -5022,6 +5022,14 @@ Prefab:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 1966973477444412, guid: 29016e339a889c44993e7bff14b5a3f7, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1192217186451406, guid: 29016e339a889c44993e7bff14b5a3f7, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 29016e339a889c44993e7bff14b5a3f7, type: 2}
   m_IsPrefabParent: 0
